@@ -62,7 +62,7 @@ export function DeadlineCountdown() {
           {timeLeft.seconds}초
         </strong>{' '}
         남았습니다
-        <span className="ml-1.5 text-amber-600">(3/13 금 14:00)</span>
+        <span className="ml-1.5 text-amber-600">(마감기한: 3/13 금 14:00)</span>
       </span>
     </div>
   );
