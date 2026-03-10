@@ -34,13 +34,15 @@ export default async function FeedbacksPage({ searchParams }: Props) {
   } = await supabase.auth.getUser();
 
   let isAdmin = false;
+  let userId: string | null = null;
   if (user) {
     const { data: profile } = await supabase
       .from('users')
-      .select('is_admin')
+      .select('id, is_admin')
       .eq('auth_id', user.id)
       .single();
     isAdmin = profile?.is_admin ?? false;
+    userId = profile?.id ?? null;
   }
 
   // 실제 데이터 조회
@@ -68,7 +70,7 @@ export default async function FeedbacksPage({ searchParams }: Props) {
             <FeedbackTabs />
           </Suspense>
 
-          <SubmissionStatus category={category} />
+          <SubmissionStatus category={category} userId={userId} />
 
           <FeedbackGuideBanner category={category} />
 
@@ -81,12 +83,13 @@ export default async function FeedbacksPage({ searchParams }: Props) {
         <div className="min-h-0 flex-1 overflow-y-auto">
           <Suspense fallback={<FeedbackSkeletonList />}>
             {feedbacks.length > 0 ? (
-              <div className="space-y-3 pb-4">
-                {feedbacks.map((feedback) => (
+              <div className="grid grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-3">
+                {feedbacks.map((feedback, index) => (
                   <FeedbackCard
                     key={feedback.id}
                     feedback={feedback}
                     isAdmin={isAdmin}
+                    index={index}
                   />
                 ))}
               </div>

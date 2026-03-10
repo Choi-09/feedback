@@ -5,12 +5,14 @@ import type {
   FeedbackListItem,
   AdminFeedbackListItem,
 } from '@/lib/types/feedback';
+import { extractKeyword } from '@/lib/extract-keyword';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button-variants';
 
 type FeedbackCardProps = {
   feedback: FeedbackListItem | AdminFeedbackListItem;
   isAdmin?: boolean;
+  index: number;
 };
 
 function isAdminItem(
@@ -19,39 +21,52 @@ function isAdminItem(
   return 'author_name' in feedback;
 }
 
-export function FeedbackCard({ feedback, isAdmin }: FeedbackCardProps) {
-  const date = new Date(feedback.created_at).toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+export function FeedbackCard({ feedback, isAdmin, index }: FeedbackCardProps) {
+  const keyword = extractKeyword(feedback.content);
+  // DB에 KST 기준으로 저장되어 있으므로 문자열에서 직접 추출
+  const date = feedback.created_at.replace('T', ' ').slice(0, 16);
 
   return (
-    <div className="rounded-lg border p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed">
+    <div className="flex h-full flex-col justify-between rounded-lg border p-4 transition-colors hover:bg-accent/50">
+      {/* 상단: 번호 + 수정 버튼 */}
+      <div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-primary">
+            # {String(index + 1).padStart(2, '0')}
+          </span>
+          <div className="flex items-center gap-1">
+            {isAdmin && isAdminItem(feedback) && (
+              <Badge variant="outline" className="text-[10px]">
+                {feedback.author_name}
+              </Badge>
+            )}
+            {feedback.is_mine && (
+              <Link
+                href={`/feedbacks/${feedback.id}/edit`}
+                className={buttonVariants({
+                  variant: 'ghost',
+                  size: 'icon-sm',
+                })}
+              >
+                <Pencil className="size-3.5" />
+                <span className="sr-only">수정</span>
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* 본문 */}
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
           {feedback.content}
         </p>
-        {feedback.is_mine && (
-          <Link
-            href={`/feedbacks/${feedback.id}/edit`}
-            className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
-          >
-            <Pencil className="size-3.5" />
-            <span className="sr-only">수정</span>
-          </Link>
-        )}
       </div>
-      <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-        <span>{date}</span>
-        {isAdmin && isAdminItem(feedback) && (
-          <Badge variant="outline" className="text-xs">
-            {feedback.author_name}
-          </Badge>
-        )}
+
+      {/* 하단: 키워드 뱃지 + 날짜 */}
+      <div className="mt-3 flex items-center justify-between">
+        <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs text-muted-foreground">
+          {keyword.emoji} {keyword.label}
+        </span>
+        <span className="text-[10px] text-muted-foreground">{date}</span>
       </div>
     </div>
   );
