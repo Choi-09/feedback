@@ -21,6 +21,23 @@ export const passwordConfirmSchema = z
     path: ['passwordConfirm'],
   });
 
+// 비밀번호 변경 스키마
+export const passwordChangeSchema = z
+  .object({
+    currentPassword: z.string().min(1, '현재 비밀번호를 입력해주세요'),
+    newPassword: z.string().min(4, '새 비밀번호는 최소 4자 이상이어야 합니다'),
+    newPasswordConfirm: z.string().min(1, '새 비밀번호 확인을 입력해주세요'),
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: '현재 비밀번호와 다른 비밀번호를 입력해주세요',
+    path: ['newPassword'],
+  })
+  .refine((data) => data.newPassword === data.newPasswordConfirm, {
+    message: '새 비밀번호가 일치하지 않습니다',
+    path: ['newPasswordConfirm'],
+  });
+
 // 스키마에서 추출한 폼 데이터 타입
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type PasswordConfirmFormData = z.infer<typeof passwordConfirmSchema>;
+export type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>;

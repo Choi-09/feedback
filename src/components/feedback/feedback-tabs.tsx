@@ -20,8 +20,12 @@ export function FeedbackTabs() {
   return (
     <Tabs value={category} onValueChange={handleChange}>
       <TabsList>
-        <TabsTrigger value="llm">LLM</TabsTrigger>
-        <TabsTrigger value="erp">ERP</TabsTrigger>
+        <TabsTrigger value="llm" className="cursor-pointer">
+          LLM
+        </TabsTrigger>
+        <TabsTrigger value="erp" className="cursor-pointer">
+          ERP
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

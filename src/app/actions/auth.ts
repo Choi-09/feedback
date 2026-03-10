@@ -2,20 +2,16 @@
 
 import { redirect } from 'next/navigation';
 
+import { toEmail } from '@/lib/auth-utils';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
-import type {
-  LoginFormData,
-  PasswordConfirmFormData,
+import {
+  passwordChangeSchema,
+  type LoginFormData,
+  type PasswordChangeFormData,
+  type PasswordConfirmFormData,
 } from '@/lib/schemas/auth';
 import type { ActionResult } from '@/lib/types/common';
-
-// Supabase Auth는 email 필수 — 이름을 내부 더미 이메일로 변환 (외부 비노출)
-// 한글 이름은 Supabase 이메일 검증을 통과하지 못하므로 hex 인코딩 사용
-function toEmail(name: string): string {
-  const encoded = Buffer.from(name, 'utf-8').toString('hex');
-  return `u-${encoded}@feedback.internal`;
-}
 
 // 이름으로 사용자 존재 여부 확인 (service_role)
 export async function checkUserExists(name: string): Promise<boolean> {
@@ -68,6 +64,45 @@ export async function signUp(
   }
 
   redirect('/feedbacks');
+}
+
+// 비밀번호 변경
+export async function changePassword(
+  formData: PasswordChangeFormData,
+): Promise<ActionResult> {
+  const parsed = passwordChangeSchema.safeParse(formData);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+
+  // 현재 사용자 확인
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) {
+    return { success: false, message: '로그인 상태를 확인해주세요' };
+  }
+
+  // 현재 비밀번호 검증
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.currentPassword,
+  });
+  if (signInError) {
+    return { success: false, message: '현재 비밀번호가 올바르지 않습니다' };
+  }
+
+  // 새 비밀번호로 변경
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: parsed.data.newPassword,
+  });
+  if (updateError) {
+    return { success: false, message: '비밀번호 변경에 실패했습니다' };
+  }
+
+  return { success: true, message: '비밀번호가 변경되었습니다' };
 }
 
 // 로그아웃

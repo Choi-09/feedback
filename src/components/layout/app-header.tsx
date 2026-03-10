@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { Separator } from '@/components/ui/separator';
-import { LogoutButton } from '@/components/layout/logout-button';
+import { UserMenu } from '@/components/layout/user-menu';
 
 export async function AppHeader() {
   const supabase = await createClient();
@@ -23,11 +22,7 @@ export async function AppHeader() {
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         <span className="text-base font-semibold">피드백</span>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">{userName}</span>
-          <Separator orientation="vertical" className="!h-4" />
-          <LogoutButton />
-        </div>
+        <UserMenu userName={userName} />
       </div>
     </header>
   );

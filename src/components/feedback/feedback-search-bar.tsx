@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 
@@ -9,26 +9,35 @@ import { Input } from '@/components/ui/input';
 export function FeedbackSearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState(searchParams.get('search') || '');
+  const initialSearch = searchParams.get('search') || '';
+  const [value, setValue] = useState(initialSearch);
+  const isFirstRender = useRef(true);
 
-  const updateSearch = useCallback(
-    (search: string) => {
+  // URL의 search 파라미터가 외부에서 변경되면 (탭 전환 등) value 동기화
+  useEffect(() => {
+    setValue(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  // 300ms debounce로 자동 검색
+  useEffect(() => {
+    // 첫 렌더링 시에는 push 스킵
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (search) {
-        params.set('search', search);
+      if (value) {
+        params.set('search', value);
       } else {
         params.delete('search');
       }
       router.push(`/feedbacks?${params.toString()}`);
-    },
-    [router, searchParams],
-  );
+    }, 300);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      updateSearch(value);
-    }
-  };
+    return () => clearTimeout(timer);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="relative">
@@ -37,7 +46,6 @@ export function FeedbackSearchBar() {
         placeholder="피드백 검색..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
         className="pl-8"
       />
     </div>
