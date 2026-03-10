@@ -48,47 +48,53 @@ export default async function FeedbacksPage({ searchParams }: Props) {
 
   return (
     <PageContainer>
-      <div className="space-y-4">
-        <PageHeader title="피드백">
-          <ExcelDownloadButton category={category} />
-          <Link
-            href={`/feedbacks/new?category=${category}`}
-            className={buttonVariants({ size: 'sm' })}
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">작성</span>
-          </Link>
-        </PageHeader>
+      <div className="flex h-full flex-col gap-4">
+        {/* 고정 컨트롤 영역 */}
+        <div className="shrink-0 space-y-4">
+          <PageHeader title="피드백">
+            <ExcelDownloadButton category={category} />
+            <Link
+              href={`/feedbacks/new?category=${category}`}
+              className={buttonVariants({ size: 'sm' })}
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">작성</span>
+            </Link>
+          </PageHeader>
 
-        <DeadlineCountdown />
+          <DeadlineCountdown />
 
-        <Suspense>
-          <FeedbackTabs />
-        </Suspense>
+          <Suspense>
+            <FeedbackTabs />
+          </Suspense>
 
-        <SubmissionStatus category={category} />
+          <SubmissionStatus category={category} />
 
-        <FeedbackGuideBanner category={category} />
+          <FeedbackGuideBanner category={category} />
 
-        <Suspense>
-          <FeedbackSearchBar />
-        </Suspense>
+          <Suspense>
+            <FeedbackSearchBar />
+          </Suspense>
+        </div>
 
-        <Suspense fallback={<FeedbackSkeletonList />}>
-          {feedbacks.length > 0 ? (
-            <div className="space-y-3">
-              {feedbacks.map((feedback) => (
-                <FeedbackCard
-                  key={feedback.id}
-                  feedback={feedback}
-                  isAdmin={isAdmin}
-                />
-              ))}
-            </div>
-          ) : (
-            <FeedbackEmptyState />
-          )}
-        </Suspense>
+        {/* 스크롤 가능한 카드 목록 */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <Suspense fallback={<FeedbackSkeletonList />}>
+            {feedbacks.length > 0 ? (
+              <div className="space-y-3 pb-4">
+                {feedbacks.map((feedback) => (
+                  <FeedbackCard
+                    key={feedback.id}
+                    feedback={feedback}
+                    isAdmin={isAdmin}
+                  />
+                ))}
+              </div>
+            ) : (
+              <FeedbackEmptyState />
+            )}
+          </Suspense>
+        </div>
       </div>
     </PageContainer>
   );

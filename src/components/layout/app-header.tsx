@@ -19,7 +19,7 @@ export async function AppHeader() {
 
   return (
     <header className="border-b bg-background">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4 sm:px-6">
         <span className="text-base font-semibold">피드백</span>
 
         <UserMenu userName={userName} />
