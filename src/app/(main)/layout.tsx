@@ -1,0 +1,14 @@
+import { AppHeader } from '@/components/layout/app-header';
+
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen">
+      <AppHeader />
+      <main>{children}</main>
+    </div>
+  );
+}

@@ -57,26 +57,26 @@
 
 > 전체 프로젝트 구조를 잡고, 라우트 골격과 타입 시스템을 먼저 완성하는 단계
 
-- **Task 001: 프로젝트 초기화 및 개발 환경 설정** - 우선순위
-  - [FE] Next.js 15 프로젝트 생성 (App Router, TypeScript, TailwindCSS v4, Turbopack)
-  - [FE] 필수 패키지 설치: react-hook-form, @hookform/resolvers, zod, exceljs, @supabase/supabase-js, @supabase/ssr
-  - [FE] ESLint, Prettier 설정 및 `check-all` 스크립트 구성
-  - [FE] `components.json` 설정 (shadcn/ui new-york 스타일, 경로 별칭 `@/`)
-  - [FE] 환경변수 파일 구성: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-  - [FE] `CLAUDE.md` 프로젝트 지침 파일 생성
+- **Task 001: 프로젝트 초기화 및 개발 환경 설정** ✅ - 완료
+  - ✅ [FE] Next.js 15 프로젝트 생성 (App Router, TypeScript, TailwindCSS v4, Turbopack)
+  - ✅ [FE] 필수 패키지 설치: react-hook-form, @hookform/resolvers, zod, exceljs, @supabase/supabase-js, @supabase/ssr
+  - ✅ [FE] ESLint, Prettier 설정 및 `check-all` 스크립트 구성
+  - ✅ [FE] `components.json` 설정 (shadcn/ui base-nova 스타일, 경로 별칭 `@/`)
+  - ✅ [FE] 환경변수 파일 구성: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+  - ✅ [FE] `CLAUDE.md` 프로젝트 지침 파일 생성
   - 관련 기능: 전체 (F001~F011 기반 인프라)
   - 생성 파일:
     ```
     package.json, tsconfig.json, next.config.ts, .env.local, .env.example, CLAUDE.md, src/lib/env.ts
     ```
 
-- **Task 002: App Router 라우트 구조 및 레이아웃 골격 생성** - 우선순위
-  - [FE] Route Group 기반 전체 라우트 구조 생성 (빈 페이지 껍데기)
-  - [FE] `(auth)` 그룹: 로그인 페이지 (중앙 정렬 레이아웃, 헤더 없음)
-  - [FE] `(main)` 그룹: 피드백 목록/작성/수정 페이지 (Header 포함 레이아웃)
-  - [FE] 루트 `/` 에서 `/feedbacks` 로 리다이렉트 설정
-  - [FE] `loading.tsx` 골격 파일 생성
-  - [FE] API Route 골격 생성: `/api/feedbacks/export/route.ts` (엑셀 다운로드 전용)
+- **Task 002: App Router 라우트 구조 및 레이아웃 골격 생성** ✅ - 완료
+  - ✅ [FE] Route Group 기반 전체 라우트 구조 생성 (빈 페이지 껍데기)
+  - ✅ [FE] `(auth)` 그룹: 로그인 페이지 (중앙 정렬 레이아웃, 헤더 없음)
+  - ✅ [FE] `(main)` 그룹: 피드백 목록/작성/수정 페이지 (Header 포함 레이아웃)
+  - ✅ [FE] 루트 `/` 에서 `/feedbacks` 로 리다이렉트 설정
+  - ✅ [FE] `loading.tsx` 골격 파일 생성
+  - ✅ [FE] API Route 골격 생성: `/api/feedbacks/export/route.ts` (엑셀 다운로드 전용)
   - 관련 기능: F001~F011 (전체 라우팅)
   - 생성 파일:
     ```
@@ -93,13 +93,13 @@
     src/app/api/feedbacks/export/route.ts
     ```
 
-- **Task 003: TypeScript 타입 정의 및 Zod 스키마 설계**
-  - [FE/BE] 피드백 도메인 타입 정의 (Feedback, FeedbackListItem, FeedbackFormData)
-  - [FE/BE] 사용자 도메인 타입 정의 (User, AuthUser, UserProfile)
-  - [FE/BE] API 응답 타입 정의: 일반 사용자 응답 (is_mine 플래그), 관리자 응답 (author_name 포함)
-  - [FE] Zod 스키마 정의: 로그인 (이름+비밀번호), 비밀번호 확인 (비밀번호+비밀번호확인)
-  - [FE] Zod 스키마 정의: 피드백 작성/수정 (category, content)
-  - [FE/BE] Server Action 반환 타입 정의 (ActionResult)
+- **Task 003: TypeScript 타입 정의 및 Zod 스키마 설계** ✅ - 완료
+  - ✅ [FE/BE] 피드백 도메인 타입 정의 (Feedback, FeedbackListItem, AdminFeedbackListItem, FeedbackDetail)
+  - ✅ [FE/BE] 사용자 도메인 타입 정의 (User, AuthUser, UserProfile)
+  - ✅ [FE/BE] API 응답 타입 정의: 일반 사용자 응답 (is_mine 플래그), 관리자 응답 (author_name 포함)
+  - ✅ [FE] Zod 스키마 정의: 로그인 (이름+비밀번호), 비밀번호 확인 (비밀번호+비밀번호확인)
+  - ✅ [FE] Zod 스키마 정의: 피드백 작성/수정 (category, content)
+  - ✅ [FE/BE] Server Action 반환 타입 정의 (ActionResult)
   - 관련 기능: 전체 (F001~F011 타입 기반)
   - 생성 파일:
     ```
@@ -116,13 +116,13 @@
 
 > shadcn/ui 컴포넌트를 설치하고, 모든 페이지 UI를 하드코딩된 더미 데이터로 완성하는 단계. 이 단계 완료 시 전체 사용자 플로우를 화면으로 확인 가능
 
-- **Task 004: shadcn/ui 컴포넌트 설치 및 공통 레이아웃 컴포넌트 구현**
-  - [FE] shadcn/ui 컴포넌트 12개 설치: button, input, textarea, label, form, card, separator, tabs, alert-dialog, sonner, badge, skeleton
-  - [FE] 공통 레이아웃 컴포넌트 구현:
+- **Task 004: shadcn/ui 컴포넌트 설치 및 공통 레이아웃 컴포넌트 구현** ✅ - 완료
+  - ✅ [FE] shadcn/ui 컴포넌트 11개 설치: button, input, textarea, label, card, separator, tabs, alert-dialog, sonner, badge, skeleton
+  - ✅ [FE] 공통 레이아웃 컴포넌트 구현:
     - `AppHeader`: 로고/서비스명 + 사용자 이름 표시 + 로그아웃 버튼 (F002)
     - `PageContainer`: max-width 제한, 반응형 패딩 (md:768px 이상 container)
     - `PageHeader`: 페이지 제목 + 우측 액션 버튼 영역
-  - [FE] 반응형 기준: 모바일 우선, sm(640px) 이상 액션바 수평 배치
+  - ✅ [FE] 반응형 기준: 모바일 우선, sm(640px) 이상 액션바 수평 배치
   - 관련 기능: F002 (로그아웃 버튼), 전체 레이아웃
   - 생성 파일:
     ```
@@ -132,8 +132,8 @@
     src/components/layout/page-header.tsx
     ```
 
-- **Task 005: 인증 페이지 UI 구현 (로그인/자동가입 통합)**
-  - [FE] `LoginForm` (Client Component): 이름 + 비밀번호 + 로그인 버튼 (단일 폼으로 로그인/가입 통합)
+- **Task 005: 인증 페이지 UI 구현 (로그인/자동가입 통합)** ✅ - 완료
+  - ✅ [FE] `LoginForm` (Client Component): 이름 + 비밀번호 + 로그인 버튼 (단일 폼으로 로그인/가입 통합)
     - React Hook Form + Zod 연동 (loginSchema)
     - 이름 입력 필드: type="text", placeholder="이름을 입력하세요"
     - 비밀번호 입력 필드: type="password"
@@ -141,28 +141,28 @@
     - 비밀번호 확인 일치 검증 (클라이언트)
     - 에러 메시지 표시 영역, 로딩 상태 처리
     - 더미 onSubmit 핸들러로 동작 확인
-  - [FE] (auth) 레이아웃에 중앙 정렬 카드 스타일 적용
+  - ✅ [FE] (auth) 레이아웃에 중앙 정렬 카드 스타일 적용
   - 관련 기능: F001 (로그인/자동가입)
   - 생성 파일:
     ```
     src/components/login-form.tsx
     ```
 
-- **Task 006: 피드백 목록 페이지 UI 구현 (더미 데이터)**
-  - [FE] 더미 데이터 생성 유틸리티: 피드백 목록 mock 데이터 (LLM/ERP 각 5건 이상)
-  - [FE] `FeedbackTabs` (Client Component): LLM/ERP 탭 전환, searchParams `?category=llm|erp` 방식 (F003)
-  - [FE] `FeedbackGuideBanner` (Server Component): 카테고리별 안내 메시지 표시 (F009)
+- **Task 006: 피드백 목록 페이지 UI 구현 (더미 데이터)** ✅ - 완료
+  - ✅ [FE] 더미 데이터 생성 유틸리티: 피드백 목록 mock 데이터 (LLM/ERP 각 5건 이상)
+  - ✅ [FE] `FeedbackTabs` (Client Component): LLM/ERP 탭 전환, searchParams `?category=llm|erp` 방식 (F003)
+  - ✅ [FE] `FeedbackGuideBanner` (Server Component): 카테고리별 안내 메시지 표시 (F009)
     - LLM: "LLM 서비스 사용 중 필요한 기능, 불편한 점, 개선 아이디어를 자유롭게 작성해주세요"
     - ERP: "ERP 시스템 사용 중 필요한 기능, 불편한 점, 개선 아이디어를 자유롭게 작성해주세요"
-  - [FE] `FeedbackSearchBar` (Client Component): 키워드 검색 입력 (F008)
-  - [FE] `FeedbackCard` (Server Component): 피드백 카드 (내용, 작성일, 본인 작성건 수정 버튼) (F004, F006)
+  - ✅ [FE] `FeedbackSearchBar` (Client Component): 키워드 검색 입력 (F008)
+  - ✅ [FE] `FeedbackCard` (Server Component): 피드백 카드 (내용, 작성일, 본인 작성건 수정 버튼) (F004, F006)
     - 일반 사용자: 익명 표시, `is_mine=true`인 경우 [수정] 버튼 노출
     - 관리자: 작성자 이름(author_name) Badge로 표시 (F010)
-  - [FE] `FeedbackEmptyState`: 피드백 없을 때 빈 상태 화면
-  - [FE] `FeedbackSkeletonList`: 로딩 시 스켈레톤 UI
-  - [FE] `ExcelDownloadButton` (Client Component): 엑셀 다운로드 버튼 (F011)
-  - [FE] 피드백 목록 페이지 조합: 탭 + 안내 + 검색 + 작성버튼 + 엑셀버튼 + 목록/빈상태
-  - [FE] 반응형: 모바일에서 검색바/버튼 세로 배치, sm 이상에서 수평 배치
+  - ✅ [FE] `FeedbackEmptyState`: 피드백 없을 때 빈 상태 화면
+  - ✅ [FE] `FeedbackSkeletonList`: 로딩 시 스켈레톤 UI
+  - ✅ [FE] `ExcelDownloadButton` (Client Component): 엑셀 다운로드 버튼 (F011)
+  - ✅ [FE] 피드백 목록 페이지 조합: 탭 + 안내 + 검색 + 작성버튼 + 엑셀버튼 + 목록/빈상태
+  - ✅ [FE] 반응형: 모바일에서 검색바/버튼 세로 배치, sm 이상에서 수평 배치
   - 관련 기능: F003, F004, F008, F009, F010, F011
   - 생성 파일:
     ```
@@ -176,20 +176,20 @@
     src/components/feedback/excel-download-button.tsx
     ```
 
-- **Task 007: 피드백 작성/수정 페이지 UI 구현 (더미 데이터)**
-  - [FE] `FeedbackForm` (Client Component): 피드백 작성 폼 (F005)
+- **Task 007: 피드백 작성/수정 페이지 UI 구현 (더미 데이터)** ✅ - 완료
+  - ✅ [FE] `FeedbackForm` (Client Component): 피드백 작성 폼 (F005)
     - React Hook Form + Zod 연동 (feedbackCreateSchema)
     - 현재 카테고리(LLM/ERP) 표시 (searchParams에서 전달)
     - textarea 내용 입력 영역
     - 저장/취소 버튼 (취소 시 목록 복귀)
     - 더미 onSubmit 핸들러
-  - [FE] `FeedbackEditForm` (Client Component): 피드백 수정 폼 (F006, F007)
+  - ✅ [FE] `FeedbackEditForm` (Client Component): 피드백 수정 폼 (F006, F007)
     - React Hook Form + Zod 연동 (feedbackUpdateSchema)
     - 기존 피드백 내용 프리필
     - 저장/삭제/취소 버튼
     - 삭제 시 AlertDialog 확인 팝업 (F007)
     - 더미 onSubmit/onDelete 핸들러
-  - [FE] 작성/수정 페이지에 PageHeader + PageContainer 적용
+  - ✅ [FE] 작성/수정 페이지에 PageHeader + PageContainer 적용
   - 관련 기능: F005 (작성), F006 (수정), F007 (삭제)
   - 생성 파일:
     ```
@@ -515,3 +515,8 @@
 | F009 | 피드백 안내 표시 | Task 006, 012 |
 | F010 | 관리자 작성자 확인 | Task 006, 011, 012 |
 | F011 | 엑셀 다운로드 | Task 006, 015 |
+
+---
+
+**📅 최종 업데이트**: 2026-03-10
+**📊 진행 상황**: Phase 2 완료 (7/17 Tasks 완료)
