@@ -101,6 +101,9 @@ export function PasswordChangeDialog({
               type="password"
               {...register('newPassword')}
             />
+            <p className="text-xs text-muted-foreground">
+              비밀번호는 최소 6자리입니다.
+            </p>
             {errors.newPassword && (
               <p className="text-sm text-destructive">
                 {errors.newPassword.message}

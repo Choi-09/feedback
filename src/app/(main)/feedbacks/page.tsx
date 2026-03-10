@@ -8,6 +8,8 @@ import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { FeedbackTabs } from '@/components/feedback/feedback-tabs';
+import { DeadlineCountdown } from '@/components/feedback/deadline-countdown';
+import { SubmissionStatus } from '@/components/feedback/submission-status';
 import { FeedbackGuideBanner } from '@/components/feedback/feedback-guide-banner';
 import { FeedbackSearchBar } from '@/components/feedback/feedback-search-bar';
 import { FeedbackCard } from '@/components/feedback/feedback-card';
@@ -58,9 +60,13 @@ export default async function FeedbacksPage({ searchParams }: Props) {
           </Link>
         </PageHeader>
 
+        <DeadlineCountdown />
+
         <Suspense>
           <FeedbackTabs />
         </Suspense>
+
+        <SubmissionStatus category={category} />
 
         <FeedbackGuideBanner category={category} />
 

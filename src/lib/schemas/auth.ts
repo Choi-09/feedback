@@ -13,7 +13,7 @@ export const loginSchema = z.object({
 export const passwordConfirmSchema = z
   .object({
     name: z.string().min(1, '이름을 입력해주세요').max(20),
-    password: z.string().min(4, '비밀번호는 최소 4자 이상이어야 합니다'),
+    password: z.string().min(6, '비밀번호는 최소 6자리입니다'),
     passwordConfirm: z.string().min(1, '비밀번호 확인을 입력해주세요'),
   })
   .refine((data) => data.password === data.passwordConfirm, {
@@ -25,7 +25,7 @@ export const passwordConfirmSchema = z
 export const passwordChangeSchema = z
   .object({
     currentPassword: z.string().min(1, '현재 비밀번호를 입력해주세요'),
-    newPassword: z.string().min(4, '새 비밀번호는 최소 4자 이상이어야 합니다'),
+    newPassword: z.string().min(6, '비밀번호는 최소 6자리입니다'),
     newPasswordConfirm: z.string().min(1, '새 비밀번호 확인을 입력해주세요'),
   })
   .refine((data) => data.newPassword !== data.currentPassword, {

@@ -174,6 +174,9 @@ export function LoginForm() {
           placeholder="비밀번호를 입력하세요"
           {...loginForm.register('password')}
         />
+        <p className="text-xs text-muted-foreground">
+          비밀번호는 최소 6자리입니다.
+        </p>
         {loginForm.formState.errors.password && (
           <p className="text-sm text-destructive">
             {loginForm.formState.errors.password.message}

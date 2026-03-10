@@ -20,10 +20,13 @@ function isAdminItem(
 }
 
 export function FeedbackCard({ feedback, isAdmin }: FeedbackCardProps) {
-  const date = new Date(feedback.created_at).toLocaleDateString('ko-KR', {
+  const date = new Date(feedback.created_at).toLocaleString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
   });
 
   return (

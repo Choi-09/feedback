@@ -100,6 +100,53 @@ export async function getFeedbacks(
   }));
 }
 
+// 제출 현황 통계 (개인 작성 수 + 카테고리별 제출 인원)
+export async function getSubmissionStats() {
+  const currentUser = await getCurrentUser();
+  const defaultStats = {
+    myStats: { llm: 0, erp: 0 },
+    overallStats: { llm: 0, erp: 0 },
+    totalUsers: 22,
+  };
+
+  if (!currentUser) return defaultStats;
+
+  const supabase = await createClient();
+
+  // 모든 피드백의 author_id + category만 조회 (경량)
+  const { data: feedbacks } = await supabase
+    .from('feedbacks')
+    .select('author_id, category');
+
+  const { count: totalUsers } = await supabase
+    .from('users')
+    .select('*', { count: 'exact', head: true });
+
+  if (!feedbacks) return { ...defaultStats, totalUsers: totalUsers ?? 22 };
+
+  // 내 작성 수
+  const myLlm = feedbacks.filter(
+    (f) => f.author_id === currentUser.id && f.category === 'llm',
+  ).length;
+  const myErp = feedbacks.filter(
+    (f) => f.author_id === currentUser.id && f.category === 'erp',
+  ).length;
+
+  // 카테고리별 고유 작성자 수
+  const llmAuthors = new Set(
+    feedbacks.filter((f) => f.category === 'llm').map((f) => f.author_id),
+  ).size;
+  const erpAuthors = new Set(
+    feedbacks.filter((f) => f.category === 'erp').map((f) => f.author_id),
+  ).size;
+
+  return {
+    myStats: { llm: myLlm, erp: myErp },
+    overallStats: { llm: llmAuthors, erp: erpAuthors },
+    totalUsers: totalUsers ?? 22,
+  };
+}
+
 // 단건 조회 (수정 페이지용, 본인 작성건만)
 export async function getFeedbackById(
   id: string,
