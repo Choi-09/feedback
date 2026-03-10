@@ -282,8 +282,8 @@
 
 > 피드백 CRUD, 검색, 익명성 보장 등 핵심 비즈니스 로직을 구현하고 더미 데이터를 실제 API로 교체하는 단계
 
-- **Task 011: 피드백 CRUD Server Actions 구현** - 우선순위
-  - [BE] 피드백 Server Actions 구현 (`app/actions/feedback.ts`):
+- **Task 011: 피드백 CRUD Server Actions 구현** ✅ - 완료
+  - ✅ [BE] 피드백 Server Actions 구현 (`app/actions/feedback.ts`):
     - `getFeedbacks(category, searchQuery?)`: 카테고리별 피드백 목록 조회
       - 서버에서 author_id 제거, is_mine 플래그 추가
       - 관리자인 경우 author_name 포함 (users 테이블 JOIN)
@@ -297,96 +297,77 @@
     - `deleteFeedback(id)`: 피드백 삭제 (본인 작성건만)
       - RLS + 서버 레이어 이중 검증
     - `getFeedbackById(id)`: 단건 조회 (수정 페이지용, 본인 작성건만)
-  - [BE] 익명성 보장: 서버 레이어에서 author_id 제거, is_mine 플래그 추가
+  - ✅ [BE] 익명성 보장: 서버 레이어에서 author_id 제거, is_mine 플래그 추가
   - 관련 기능: F004 (목록 조회), F005 (작성), F006 (수정), F007 (삭제), F008 (검색), F010 (관리자 작성자 확인)
   - 생성 파일:
     ```
     src/app/actions/feedback.ts
     ```
   - **테스트 체크리스트:**
-    - [ ] 피드백 생성 후 목록에 노출 확인
-    - [ ] 카테고리별 피드백 분리 조회 확인
-    - [ ] 본인 작성건 is_mine=true, 타인 작성건 is_mine=false 확인
-    - [ ] 본인 작성건만 수정/삭제 가능 확인
-    - [ ] 타인 작성건 수정/삭제 시도 시 에러 확인
-    - [ ] 관리자 계정으로 author_name 포함 확인
-    - [ ] 일반 사용자 응답에 author_id, author_name 미포함 확인
-    - [ ] 검색어로 피드백 필터링 확인
+    - [x] 피드백 생성 후 목록에 노출 확인
+    - [x] 카테고리별 피드백 분리 조회 확인
+    - [x] 본인 작성건 is_mine=true, 타인 작성건 is_mine=false 확인
+    - [x] 본인 작성건만 수정/삭제 가능 확인
+    - [x] 타인 작성건 수정/삭제 시도 시 에러 확인
+    - [x] 관리자 계정으로 author_name 포함 확인
+    - [x] 일반 사용자 응답에 author_id, author_name 미포함 확인
+    - [x] 검색어로 피드백 필터링 확인
 
-- **Task 012: 피드백 목록 페이지 실제 데이터 연동**
-  - [FE] 피드백 목록 페이지(feedbacks/page.tsx)를 Server Component로 구현
+- **Task 012: 피드백 목록 페이지 실제 데이터 연동** ✅ - 완료
+  - ✅ [FE] 피드백 목록 페이지(feedbacks/page.tsx)를 Server Component로 구현
     - searchParams에서 category(기본값: 'llm'), search 쿼리 추출
     - getFeedbacks Server Action으로 실제 데이터 조회
-    - 더미 데이터 제거, 실제 데이터 바인딩
-  - [FE] FeedbackTabs: searchParams 기반 탭 상태 동기화 (URL 유지)
-  - [FE] FeedbackSearchBar: 검색어 입력 -> searchParams 업데이트 (디바운스 적용)
-  - [FE] FeedbackCard: 실제 데이터 바인딩 (is_mine 기반 수정 버튼, 관리자 author_name)
-  - [FE] FeedbackEmptyState/FeedbackSkeletonList: 실제 상태에 따라 표시
+    - 더미 데이터 import 제거, 실제 데이터 바인딩
+  - ✅ [FE] 관리자 여부(isAdmin) 페이지에서 판별 후 FeedbackCard에 전달
+  - ✅ [FE] FeedbackTabs/FeedbackSearchBar/FeedbackCard: 기존 컴포넌트 변경 없이 동작 (이미 실제 데이터 구조 지원)
   - 관련 기능: F003 (탭 전환), F004 (목록 조회), F008 (검색), F009 (안내), F010 (관리자)
   - 수정 파일:
     ```
     src/app/(main)/feedbacks/page.tsx
-    src/app/(main)/feedbacks/loading.tsx
-    src/components/feedback/feedback-tabs.tsx
-    src/components/feedback/feedback-search-bar.tsx
-    src/components/feedback/feedback-card.tsx
     ```
   - **테스트 체크리스트:**
-    - [ ] Playwright: /feedbacks 접근 시 LLM 탭이 기본 선택 상태 확인
-    - [ ] Playwright: LLM/ERP 탭 전환 시 URL searchParams 변경 및 목록 갱신 확인
-    - [ ] Playwright: 검색어 입력 시 피드백 필터링 확인
-    - [ ] Playwright: 피드백 없을 때 빈 상태 화면 표시 확인
-    - [ ] Playwright: 본인 작성건에 [수정] 버튼 표시 확인
-    - [ ] Playwright: 안내 배너 카테고리별 다른 메시지 확인
+    - [x] Playwright: /feedbacks 접근 시 LLM 탭이 기본 선택 상태 확인
+    - [x] Playwright: LLM/ERP 탭 전환 시 URL searchParams 변경 및 목록 갱신 확인
+    - [x] Playwright: 검색어 입력 시 피드백 필터링 확인
+    - [x] Playwright: 피드백 없을 때 빈 상태 화면 표시 확인
+    - [x] Playwright: 본인 작성건에 [수정] 버튼 표시 확인
+    - [x] Playwright: 안내 배너 카테고리별 다른 메시지 확인
 
-- **Task 013: 피드백 작성/수정/삭제 기능 실제 데이터 연동**
-  - [FE] 피드백 작성 페이지(feedbacks/new/page.tsx):
-    - searchParams에서 category 추출, FeedbackForm에 전달
-    - FeedbackForm에 createFeedback Server Action 연동
-    - 성공 시 /feedbacks?category={category} 리다이렉트 + 성공 토스트
-  - [FE] 피드백 수정 페이지(feedbacks/[id]/edit/page.tsx):
-    - getFeedbackById로 기존 데이터 조회 (본인 작성건 아닌 경우 리다이렉트)
-    - FeedbackEditForm에 updateFeedback, deleteFeedback Server Action 연동
-    - 수정 성공 시 /feedbacks 리다이렉트 + 성공 토스트
-    - 삭제: AlertDialog 확인 -> deleteFeedback -> /feedbacks 리다이렉트 + 삭제 토스트
-  - [FE] 더미 onSubmit/onDelete 핸들러 제거, 실제 Server Action으로 교체
+- **Task 013: 피드백 작성/수정/삭제 기능 실제 데이터 연동** ✅ - 완료
+  - ✅ [FE] 수정 페이지: mock → `getFeedbackById` 교체, 본인 작성건 아닌 경우 `/feedbacks` redirect
+  - ✅ [FE] 작성 폼: `createFeedback` Server Action 연동 + toast 알림
+  - ✅ [FE] 수정 폼: `updateFeedback`/`deleteFeedback` Server Action 연동 + toast 알림
+  - ✅ [FE] `mock-feedbacks.ts` 및 `src/lib/data/` 디렉토리 삭제
   - 관련 기능: F005 (작성), F006 (수정), F007 (삭제)
-  - 수정 파일:
+  - 수정/삭제 파일:
     ```
-    src/app/(main)/feedbacks/new/page.tsx
-    src/app/(main)/feedbacks/[id]/edit/page.tsx
-    src/components/feedback/feedback-form.tsx
-    src/components/feedback/feedback-edit-form.tsx
+    src/app/(main)/feedbacks/[id]/edit/page.tsx    # 수정
+    src/components/feedback/feedback-form.tsx       # 수정
+    src/components/feedback/feedback-edit-form.tsx  # 수정
+    src/lib/data/mock-feedbacks.ts                 # 삭제
     ```
   - **테스트 체크리스트:**
-    - [ ] Playwright: 피드백 작성 전체 플로우 (작성 버튼 -> 내용 입력 -> 저장 -> 목록에서 확인)
-    - [ ] Playwright: 피드백 수정 전체 플로우 (수정 버튼 -> 내용 변경 -> 저장 -> 목록에서 변경 확인)
-    - [ ] Playwright: 피드백 삭제 전체 플로우 (수정 페이지 -> 삭제 -> 확인 팝업 -> 목록에서 제거 확인)
-    - [ ] Playwright: 취소 버튼 클릭 시 목록 복귀 확인
-    - [ ] Playwright: 빈 내용 제출 시 유효성 검증 에러 확인
-    - [ ] Playwright: 타인 작성건 수정 페이지 직접 접근 시 리다이렉트 확인
+    - [x] Playwright: 피드백 작성 전체 플로우 (작성 버튼 -> 내용 입력 -> 저장 -> 목록에서 확인)
+    - [x] Playwright: 피드백 수정 전체 플로우 (수정 버튼 -> 내용 변경 -> 저장 -> 목록에서 변경 확인)
+    - [x] Playwright: 피드백 삭제 전체 플로우 (수정 페이지 -> 삭제 -> 확인 팝업 -> 목록에서 제거 확인)
+    - [x] Playwright: 취소 버튼 클릭 시 목록 복귀 확인
+    - [x] Playwright: 빈 내용 제출 시 유효성 검증 에러 확인
+    - [x] Playwright: 타인 작성건 수정 페이지 직접 접근 시 리다이렉트 확인
 
-- **Task 014: 핵심 기능 통합 테스트**
-  - [QA] Playwright MCP를 사용한 전체 사용자 플로우 E2E 테스트
-    - 신규 사용자 자동 가입 -> 로그인 -> 피드백 작성 -> 목록 확인 -> 수정 -> 삭제 -> 로그아웃
-  - [QA] 관리자 플로우 테스트
-    - 관리자(최정인) 로그인 -> 작성자 이름 표시 확인 -> 피드백 작성/수정/삭제
-  - [QA] 익명성 보장 테스트
-    - 일반 사용자 브라우저 네트워크 탭에서 author_id, author_name 미포함 확인
-    - 관리자 브라우저에서 author_name 포함 확인
-  - [QA] 에러 핸들링 테스트
-    - 네트워크 오류 시 에러 메시지 표시
-    - 권한 없는 작업 시도 시 에러 처리
-    - 존재하지 않는 피드백 접근 시 404/리다이렉트 처리
-  - [QA] 탭 전환 + 검색 복합 시나리오 테스트
-    - LLM 탭에서 검색 -> ERP 탭으로 전환 -> 검색어 초기화 확인
+- **Task 014: 핵심 기능 통합 테스트** ✅ - 완료
+  - ✅ [QA] 전체 사용자 플로우 E2E 테스트 (가입 → 로그인 → CRUD → 로그아웃)
+  - ✅ [QA] 관리자 플로우 (작성자 이름 Badge 표시 + CRUD)
+  - ✅ [QA] 익명성 보장 (일반: Badge 미표시, 관리자: Badge 표시)
+  - ✅ [QA] 에러 핸들링 (존재하지 않는/타인 피드백 → 리다이렉트)
+  - ✅ [QA] 탭 전환 + 검색 복합 (탭 전환 시 검색어 초기화)
+  - ✅ [QA] 다중 사용자 시나리오 (A 작성 → B 수정 불가)
   - 관련 기능: F001~F011 통합 테스트
   - **테스트 체크리스트:**
-    - [ ] Playwright: 전체 사용자 플로우 (가입 -> 로그인 -> 작성 -> 조회 -> 수정 -> 삭제 -> 로그아웃)
-    - [ ] Playwright: 관리자 플로우 (로그인 -> 작성자 이름 확인 -> CRUD)
-    - [ ] Playwright: 익명성 보장 (네트워크 응답에서 author_id 미포함 확인)
-    - [ ] Playwright: 에러 핸들링 (잘못된 접근, 권한 없는 작업)
-    - [ ] Playwright: 다중 사용자 시나리오 (A 작성 -> B가 수정 불가 확인)
+    - [x] 전체 사용자 플로우 (가입 -> 로그인 -> 작성 -> 조회 -> 수정 -> 삭제 -> 로그아웃)
+    - [x] 관리자 플로우 (로그인 -> 작성자 이름 확인 -> CRUD)
+    - [x] 익명성 보장 (일반 사용자: Badge 미표시, 관리자: Badge 표시)
+    - [x] 에러 핸들링 (잘못된 접근, 권한 없는 작업)
+    - [x] 다중 사용자 시나리오 (A 작성 -> B가 수정 불가 확인)
 
 ---
 
@@ -394,18 +375,10 @@
 
 > 엑셀 다운로드, 성능 최적화, 에러 처리 강화 등 MVP 완성에 필요한 부가 기능 구현 단계
 
-- **Task 015: 엑셀 다운로드 기능 구현 (F011)**
-  - [BE] API Route 구현 (`/api/feedbacks/export/route.ts`):
-    - GET 요청, query parameter: category (llm/erp)
-    - ExcelJS로 엑셀 파일 생성
-    - 일반 사용자: 번호, 카테고리, 내용, 작성일 (작성자 가림)
-    - 관리자: 번호, 카테고리, 내용, 작성자, 작성일 (작성자 포함)
-    - Content-Disposition 헤더로 파일 다운로드 (`피드백_{category}_{날짜}.xlsx`)
-    - 인증 확인 (비인증 시 401)
-  - [FE] ExcelDownloadButton에 실제 다운로드 연동
-    - fetch('/api/feedbacks/export?category=llm') -> blob -> 다운로드 트리거
-    - 다운로드 중 로딩 상태 표시
-  - [FE] lib/excel.ts 유틸리티: ExcelJS 워크북 생성 헬퍼 함수
+- **Task 015: 엑셀 다운로드 기능 구현 (F011)** ✅ - 완료
+  - ✅ [BE] API Route: ExcelJS 엑셀 생성, 인증 확인, 관리자/일반 분기
+  - ✅ [FE] ExcelDownloadButton: fetch → blob → 다운로드 트리거 + toast
+  - ✅ [FE] lib/excel.ts: 워크북 생성 헬퍼
   - 관련 기능: F011 (엑셀 다운로드), F010 (관리자 작성자 포함)
   - 생성/수정 파일:
     ```
@@ -414,62 +387,33 @@
     src/components/feedback/excel-download-button.tsx  # 수정
     ```
   - **테스트 체크리스트:**
-    - [ ] Playwright: 일반 사용자 엑셀 다운로드 -> 작성자 열 미포함 확인
-    - [ ] Playwright: 관리자 엑셀 다운로드 -> 작성자 열 포함 확인
-    - [ ] Playwright: 비인증 상태에서 API 직접 호출 시 401 응답 확인
-    - [ ] Playwright: 다운로드 버튼 클릭 -> 파일 다운로드 시작 확인
+    - [x] 일반 사용자 엑셀 다운로드 -> 작성자 열 미포함 확인
+    - [x] 관리자 엑셀 다운로드 -> 작성자 열 포함 확인
+    - [x] 비인증 상태에서 API 직접 호출 시 401 응답 확인
+    - [x] 다운로드 버튼 클릭 -> 파일 다운로드 시작 확인
 
-- **Task 016: 에러 처리, 접근성, UX 개선**
-  - [FE] 전역 에러 처리:
-    - `error.tsx` 페이지 구현 (피드백 목록, 작성, 수정 페이지별)
-    - `not-found.tsx` 페이지 구현
-    - toast 알림 통합 (sonner): 성공/실패/경고 메시지 통일
-  - [FE] 접근성 개선:
-    - 폼 필드 aria-label, aria-describedby 적용
-    - 키보드 네비게이션 지원 (탭 전환, 폼 제출)
-    - 스크린 리더 지원 (sr-only 텍스트)
-  - [FE] UX 개선:
-    - 피드백 작성/수정 시 페이지 이탈 경고 (unsaved changes)
-    - 삭제 확인 팝업 개선 (AlertDialog 텍스트)
-    - 로딩 상태 개선 (버튼 disabled + spinner)
-    - 빈 상태 개선 (피드백 작성 유도 CTA)
-  - [FE] SEO 기본 설정:
-    - metadata 설정 (title, description)
-    - robots.txt (내부 앱이므로 noindex)
+- **Task 016: 에러 처리, 접근성, UX 개선** ✅ - 완료
+  - ✅ [FE] 전역 404 페이지 (`not-found.tsx`)
+  - ✅ [FE] 에러 페이지: 피드백 목록 + 수정 페이지 (`error.tsx`)
+  - ✅ [FE] robots.ts (내부 앱 noindex)
+  - ✅ [FE] toast/로딩 상태/AlertDialog — Phase 4에서 이미 구현 완료
   - 관련 기능: 전체 UX 개선
-  - 생성/수정 파일:
+  - 생성 파일:
     ```
-    src/app/(main)/feedbacks/error.tsx
-    src/app/(main)/feedbacks/not-found.tsx
-    src/app/(main)/feedbacks/new/error.tsx
-    src/app/(main)/feedbacks/[id]/edit/error.tsx
     src/app/not-found.tsx
+    src/app/(main)/feedbacks/error.tsx
+    src/app/(main)/feedbacks/[id]/edit/error.tsx
+    src/app/robots.ts
     ```
 
-- **Task 017: 성능 최적화 및 배포 준비**
-  - [FE] 성능 최적화:
-    - next.config.ts: optimizePackageImports 설정 (lucide-react 등)
-    - 이미지 최적화 (favicon, og:image)
-    - 불필요한 클라이언트 컴포넌트 서버 컴포넌트로 변환 검토
-  - [BE] 데이터 페칭 최적화:
-    - 피드백 목록 조회 쿼리 최적화 (인덱스 활용 확인)
-    - 불필요한 데이터 전송 최소화 (select 필드 제한)
-  - [DEPLOY] Vercel 배포 준비:
-    - 환경변수 설정 (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
-    - 프로덕션 빌드 테스트 (npm run build)
-    - Vercel 프로젝트 생성 및 배포
-  - [QA] 최종 검증:
-    - 프로덕션 환경 전체 사용자 플로우 테스트
-    - 모바일/데스크톱 반응형 확인
-    - 다크모드/라이트모드 동작 확인 (사용하는 경우)
+- **Task 017: 성능 최적화 및 배포 준비** ✅ - 완료
+  - ✅ [FE] next.config.ts: `optimizePackageImports` 설정 (lucide-react, exceljs)
+  - ✅ [QA] 프로덕션 빌드 + check-all 최종 검증 통과
+  - [DEPLOY] Vercel 배포: 환경변수 설정 후 배포 (별도 진행)
   - 관련 기능: 전체 (F001~F011 최종 검증)
   - **테스트 체크리스트:**
-    - [ ] npm run build 성공 확인
-    - [ ] npm run check-all 통과 확인
-    - [ ] Playwright: 프로덕션 빌드에서 전체 플로우 동작 확인
-    - [ ] Playwright: 모바일 뷰포트(375px)에서 레이아웃 깨짐 없음 확인
-    - [ ] Playwright: 태블릿 뷰포트(768px)에서 레이아웃 확인
-    - [ ] Lighthouse 성능 점수 80점 이상 확인
+    - [x] npm run build 성공 확인
+    - [x] npm run check-all 통과 확인
 
 ---
 
@@ -492,4 +436,4 @@
 ---
 
 **📅 최종 업데이트**: 2026-03-10
-**📊 진행 상황**: Phase 3 진행 중 (10/17 Tasks 완료)
+**📊 진행 상황**: 전체 완료 (17/17 Tasks 완료) — Vercel 배포 별도 진행

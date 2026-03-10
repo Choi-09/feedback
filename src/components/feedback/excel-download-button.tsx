@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Download, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import type { FeedbackCategory } from '@/lib/types/common';
@@ -13,12 +14,40 @@ export function ExcelDownloadButton({
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  // 더미 핸들러 (Task 015에서 실제 다운로드로 교체 예정)
   const handleDownload = async () => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    alert(`${category.toUpperCase()} 피드백 엑셀 다운로드 (준비 중)`);
-    setIsLoading(false);
+
+    try {
+      const res = await fetch(`/api/feedbacks/export?category=${category}`);
+
+      if (!res.ok) {
+        toast.error('엑셀 다운로드에 실패했습니다');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // Content-Disposition에서 파일명 추출 또는 기본값 사용
+      const disposition = res.headers.get('Content-Disposition');
+      const filenameMatch = disposition?.match(/filename\*=UTF-8''(.+)/);
+      a.download = filenameMatch
+        ? decodeURIComponent(filenameMatch[1])
+        : `피드백_${category.toUpperCase()}.xlsx`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success('엑셀 파일이 다운로드되었습니다');
+    } catch {
+      toast.error('엑셀 다운로드 중 오류가 발생했습니다');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
