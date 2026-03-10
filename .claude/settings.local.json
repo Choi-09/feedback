@@ -1,0 +1,12 @@
+{
+    "permissions": {
+      "allow": [
+        "mcp__shrimp-task-manager",
+        "mcp__playwright",
+        "mcp__shadcn"
+      ]
+    },
+    "enableAllProjectMcpServers": true,
+    "outputStyle": "outline-style"
+  }
+  
