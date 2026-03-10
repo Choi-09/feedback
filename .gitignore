@@ -36,6 +36,26 @@ yarn-error.log*
 .env*.local
 .env.local
 
+# claude
+.claude/
+CLAUDE.md
+shrimp-rules.md
+
+# tasks (shrimp-task-manager)
+/tasks/
+
+# docs (개발 문서)
+/docs/
+
+# scripts (시딩/마이그레이션)
+/scripts/
+
+# supabase (마이그레이션)
+/supabase/
+
+# e2e tests
+/e2e/
+
 # vercel
 .vercel
 
