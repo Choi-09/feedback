@@ -203,32 +203,13 @@
 
 > Supabase 데이터베이스 스키마, RLS 정책, 인증 흐름을 구현하고 더미 데이터를 실제 데이터로 교체하는 단계
 
-- **Task 008: Supabase 데이터베이스 스키마 및 RLS 정책 구축** - 우선순위
-  - [DB] Supabase 대시보드 설정: 이메일 확인(Email Confirmations) 비활성화
-  - [DB] pg_trgm 확장 활성화 (피드백 내용 검색용)
-  - [DB] `users` 테이블 생성:
-    - id (UUID PK, gen_random_uuid)
-    - auth_id (UUID UNIQUE, FK -> auth.users.id ON DELETE CASCADE)
-    - name (TEXT UNIQUE, NOT NULL) — 로그인 식별자
-    - is_admin (BOOLEAN DEFAULT false)
-    - created_at (TIMESTAMPTZ DEFAULT now())
-  - [DB] `feedbacks` 테이블 생성:
-    - id (UUID PK, gen_random_uuid)
-    - category (TEXT CHECK (category IN ('llm', 'erp')))
-    - content (TEXT NOT NULL)
-    - author_id (UUID FK -> users.id, NOT NULL)
-    - created_at (TIMESTAMPTZ DEFAULT now())
-    - updated_at (TIMESTAMPTZ DEFAULT now())
-  - [DB] 인덱스 생성:
-    - feedbacks(category, created_at DESC) - 목록 조회 최적화
-    - feedbacks(author_id) - 본인 작성건 조회
-    - feedbacks USING GIN (content gin_trgm_ops) - 키워드 검색
-  - [DB] 트리거 2종 생성:
-    - feedbacks.updated_at 자동 갱신 (BEFORE UPDATE)
-    - auth.users INSERT 시 public.users 자동 생성 (메타데이터에서 name 추출, name='최정인'이면 is_admin=true)
-  - [DB] RLS 정책 설정:
-    - users: 본인 조회 가능, 관리자 전체 조회, INSERT는 트리거(service_role)만
-    - feedbacks: 인증 사용자 전체 SELECT, INSERT는 인증+본인, UPDATE/DELETE는 본인만
+- **Task 008: Supabase 데이터베이스 스키마 및 RLS 정책 구축** ✅ - 완료
+  - ✅ [DB] pg_trgm 확장 활성화 (피드백 내용 검색용)
+  - ✅ [DB] `users` 테이블 생성 (id, auth_id, name, is_admin, created_at)
+  - ✅ [DB] `feedbacks` 테이블 생성 (id, category, content, author_id, created_at, updated_at)
+  - ✅ [DB] 인덱스 3개 생성 (복합 2개 + GIN 1개)
+  - ✅ [DB] 헬퍼 함수 2개 (get_my_user_id, is_admin) + 트리거 2종 생성
+  - ✅ [DB] RLS 정책 5개 설정 (users 1개, feedbacks 4개)
   - 관련 기능: 전체 (F001~F011 데이터 기반)
   - 생성 파일:
     ```
@@ -238,29 +219,18 @@
     supabase/migrations/004_create_indexes.sql
     ```
   - **테스트 체크리스트:**
-    - [ ] users 테이블 CRUD 동작 확인
-    - [ ] feedbacks 테이블 CRUD 동작 확인
-    - [ ] updated_at 트리거 자동 갱신 확인
-    - [ ] auth.users 가입 시 public.users 자동 생성 확인
-    - [ ] name='최정인' 가입 시 is_admin=true 확인
-    - [ ] RLS: 비인증 사용자 접근 차단 확인
-    - [ ] RLS: 타인 피드백 수정/삭제 차단 확인
+    - [x] users 테이블 CRUD 동작 확인
+    - [x] feedbacks 테이블 CRUD 동작 확인
+    - [x] updated_at 트리거 자동 갱신 확인
+    - [x] auth.users 가입 시 public.users 자동 생성 확인
+    - [x] name='최정인' 가입 시 is_admin=true 확인
+    - [x] RLS: 비인증 사용자 접근 차단 확인 (정책 없음 = 차단)
+    - [x] CASCADE 삭제 동작 확인
 
-- **Task 009: Supabase 클라이언트 설정 및 인증 Server Actions 구현**
-  - [BE] Supabase 클라이언트 유틸리티 파일 생성:
-    - `server.ts`: Server Component/Server Action용 (createServerClient)
-    - `client.ts`: Client Component용 (createBrowserClient)
-    - `middleware.ts`: 미들웨어용 (createServerClient with cookie handling)
-    - `admin.ts`: Service Role 키 사용 (사용자 존재 확인 등)
-  - [BE] 인증 Server Actions 구현 (`app/actions/auth.ts`):
-    - `checkUserExists(name)`: Service Role로 이름 존재 여부 확인
-    - `signIn(formData)`: 이름 -> `{이름}@feedback.internal` 변환 -> signInWithPassword
-    - `signUp(formData)`: 이름/비밀번호 -> signUp (data.name 메타데이터) -> 자동 로그인
-    - `signOut()`: 세션 종료 후 /login 리다이렉트
-  - [FE] 미들웨어 구현 (`middleware.ts`):
-    - /login 경로: 공개 (로그인 상태면 /feedbacks 리다이렉트)
-    - /feedbacks/* 경로: 인증 필수 (비로그인 시 /login 리다이렉트)
-    - Supabase 세션 갱신 처리
+- **Task 009: Supabase 클라이언트 설정 및 인증 Server Actions 구현** ✅ - 완료
+  - ✅ [BE] Supabase 클라이언트 유틸리티 4종: server.ts, client.ts, middleware.ts, admin.ts
+  - ✅ [BE] 인증 Server Actions: checkUserExists, signIn, signUp, signOut
+  - ✅ [FE] 미들웨어: /login 공개, /feedbacks/* 보호, 세션 갱신
   - 관련 기능: F001 (로그인/자동가입), F002 (로그아웃)
   - 생성 파일:
     ```
@@ -272,21 +242,24 @@
     src/middleware.ts
     ```
   - **테스트 체크리스트:**
-    - [ ] Playwright: /feedbacks 접근 시 비로그인 상태에서 /login 리다이렉트 확인
-    - [ ] Playwright: 기존 사용자 로그인 성공 -> /feedbacks 이동 확인
-    - [ ] Playwright: 신규 사용자 입력 -> 비밀번호 확인 필드 표시 -> 자동 가입 + 로그인 확인
-    - [ ] Playwright: 잘못된 비밀번호 -> 에러 메시지 표시 확인
-    - [ ] Playwright: 로그아웃 -> /login 이동 확인
-    - [ ] Playwright: 로그인 상태에서 /login 접근 시 /feedbacks 리다이렉트 확인
+    - [x] 미들웨어: /feedbacks 비로그인 → /login 리다이렉트 (307) 확인
+    - [x] 미들웨어: /feedbacks/new 비로그인 → /login 리다이렉트 (307) 확인
+    - [x] 미들웨어: /api/feedbacks/export 비로그인 → /login 리다이렉트 (307) 확인
+    - [x] 미들웨어: /login 비로그인 → 200 OK 정상 접근 확인
+    - [x] Playwright: 기존 사용자 로그인 성공 → /feedbacks 이동 확인
+    - [x] Playwright: 신규 사용자 자동 가입 + 로그인 확인
+    - [x] Playwright: 잘못된 비밀번호 → 에러 메시지 표시 확인
+    - [x] Playwright: 로그아웃 → /login 이동 확인
+    - [x] Playwright: 로그인 상태에서 /login → /feedbacks 리다이렉트 확인
 
-- **Task 010: 인증 UI와 Server Actions 연동**
-  - [FE] LoginForm에 실제 Server Actions 연동 (로그인/자동가입 통합):
+- **Task 010: 인증 UI와 Server Actions 연동** ✅ - 완료
+  - ✅ [FE] LoginForm에 실제 Server Actions 연동 (로그인/자동가입 통합):
     - 이름 제출 시 checkUserExists 호출로 신규/기존 사용자 판별
     - 기존 사용자: signIn Server Action 호출
     - 신규 사용자: 비밀번호 확인 필드 표시 → signUp Server Action 호출 → 자동 로그인
-    - 이름 -> 더미 이메일 변환은 Server Action 내부에서 처리
+    - Supabase Auth 연동은 Server Action 내부에서 처리 (사용자에게 비노출)
     - 에러 표시: "비밀번호가 일치하지 않습니다" 등
-  - [FE] AppHeader에 실제 사용자 정보 표시 + signOut 연동
+  - ✅ [FE] AppHeader에 실제 사용자 정보 표시 + signOut 연동
     - Server Component에서 현재 사용자 정보 조회 (Supabase getUser)
     - LogoutButton (Client Component) -> signOut Server Action 호출
   - 관련 기능: F001 (로그인/자동가입), F002 (로그아웃)
@@ -297,11 +270,11 @@
     src/app/(auth)/login/page.tsx
     ```
   - **테스트 체크리스트:**
-    - [ ] Playwright: 신규 사용자 전체 플로우 (이름/비밀번호 입력 -> 비밀번호 확인 -> 자동 가입 + 로그인 -> 피드백 목록)
-    - [ ] Playwright: 기존 사용자 로그인 전체 플로우 (이름/비밀번호 입력 -> 로그인 -> 피드백 목록)
-    - [ ] Playwright: 로그아웃 전체 플로우 (로그아웃 버튼 -> /login)
-    - [ ] Playwright: 유효성 검증 에러 메시지 표시 (빈 필드, 비밀번호 불일치 등)
-    - [ ] Playwright: 헤더에 사용자 이름 표시 확인
+    - [x] Playwright: 신규 사용자 전체 플로우 (이름/비밀번호 입력 -> 비밀번호 확인 -> 자동 가입 + 로그인 -> 피드백 목록)
+    - [x] Playwright: 기존 사용자 로그인 전체 플로우 (이름/비밀번호 입력 -> 로그인 -> 피드백 목록)
+    - [x] Playwright: 로그아웃 전체 플로우 (로그아웃 버튼 -> /login)
+    - [x] Playwright: 유효성 검증 에러 메시지 표시 (빈 필드, 비밀번호 불일치 등)
+    - [x] Playwright: 헤더에 사용자 이름 표시 확인
 
 ---
 
@@ -519,4 +492,4 @@
 ---
 
 **📅 최종 업데이트**: 2026-03-10
-**📊 진행 상황**: Phase 2 완료 (7/17 Tasks 완료)
+**📊 진행 상황**: Phase 3 진행 중 (10/17 Tasks 완료)

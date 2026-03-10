@@ -224,8 +224,8 @@ FORBIDDEN: src/lib/actions/feedback.ts
 ```
 1. User enters: name + password
 2. Check if name exists: checkUserExists(name) via service_role
-3a. Existing user → signInWithPassword(email: "{name}@feedback.internal", password)
-3b. New user → Show password confirm field → signUp(email, password, metadata: {name})
+3a. Existing user → signIn(name, password) via Server Action (Supabase Auth 내부 처리)
+3b. New user → Show password confirm field → signUp(name, password) via Server Action
 4. DB trigger on auth.users INSERT → creates public.users record
    - name='최정인' → is_admin=true
 5. Middleware redirects:

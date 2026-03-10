@@ -71,7 +71,7 @@ src/
 
 ### 인증 흐름
 
-이름 기반 로그인/자동가입 통합 방식. `{이름}@feedback.internal` 더미 이메일로 Supabase Auth 호출.
+이름 + 비밀번호 기반 로그인/자동가입 통합 방식. Supabase Auth 연동은 Server Action 내부 구현 상세로 캡슐화.
 
 - 로그인 상태 → `/feedbacks` 리다이렉트
 - 비로그인 → `/login` 리다이렉트
