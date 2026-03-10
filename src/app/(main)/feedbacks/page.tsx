@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
+import { createClient } from '@/lib/supabase/server';
+import { getFeedbacks } from '@/app/actions/feedback';
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { buttonVariants } from '@/components/ui/button-variants';
@@ -12,7 +14,6 @@ import { FeedbackCard } from '@/components/feedback/feedback-card';
 import { FeedbackEmptyState } from '@/components/feedback/feedback-empty-state';
 import { FeedbackSkeletonList } from '@/components/feedback/feedback-skeleton-list';
 import { ExcelDownloadButton } from '@/components/feedback/excel-download-button';
-import { mockFeedbacks } from '@/lib/data/mock-feedbacks';
 import type { FeedbackCategory } from '@/lib/types/common';
 
 type Props = {
@@ -24,12 +25,24 @@ export default async function FeedbacksPage({ searchParams }: Props) {
   const category = (params.category as FeedbackCategory) || 'llm';
   const search = params.search || '';
 
-  // 더미 데이터 필터링 (Task 012에서 실제 Server Action으로 교체 예정)
-  const feedbacks = mockFeedbacks.filter((f) => {
-    if (f.category !== category) return false;
-    if (search && !f.content.includes(search)) return false;
-    return true;
-  });
+  // 현재 사용자 관리자 여부 확인
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('auth_id', user.id)
+      .single();
+    isAdmin = profile?.is_admin ?? false;
+  }
+
+  // 실제 데이터 조회
+  const feedbacks = await getFeedbacks(category, search || undefined);
 
   return (
     <PageContainer>
@@ -59,7 +72,11 @@ export default async function FeedbacksPage({ searchParams }: Props) {
           {feedbacks.length > 0 ? (
             <div className="space-y-3">
               {feedbacks.map((feedback) => (
-                <FeedbackCard key={feedback.id} feedback={feedback} />
+                <FeedbackCard
+                  key={feedback.id}
+                  feedback={feedback}
+                  isAdmin={isAdmin}
+                />
               ))}
             </div>
           ) : (

@@ -54,7 +54,7 @@ src/
 ├── lib/
 │   ├── utils.ts                   # cn() 유틸리티
 │   ├── env.ts                     # 환경변수 검증 (Zod)
-│   ├── types/                     # TypeScript 타입
+│   ├── types/                     # TypeScript 타입 (database.ts: Supabase 자동 생성)
 │   ├── schemas/                   # Zod 스키마
 │   └── supabase/                  # Supabase 클라이언트 (server/client/middleware/admin)
 └── middleware.ts                   # 인증 라우트 보호
@@ -68,6 +68,9 @@ src/
 | Browser    | `lib/supabase/client.ts`     | Client Component                |
 | Middleware | `lib/supabase/middleware.ts` | middleware.ts                   |
 | Admin      | `lib/supabase/admin.ts`      | Service Role (서버 전용)        |
+
+모든 클라이언트에 `Database` 제네릭 타입 적용됨 (`lib/types/database.ts`).
+DB 스키마 변경 시 Supabase MCP `generate_typescript_types`로 타입 재생성 필요.
 
 ### 인증 흐름
 

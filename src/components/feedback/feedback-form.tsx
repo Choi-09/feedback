@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
+import { createFeedback } from '@/app/actions/feedback';
 import {
   feedbackCreateSchema,
   type FeedbackCreateData,
@@ -33,15 +35,17 @@ export function FeedbackForm({ category }: FeedbackFormProps) {
     defaultValues: { category, content: '' },
   });
 
-  // 더미 핸들러 (Task 013에서 실제 Server Action으로 교체 예정)
   const onSubmit = async (data: FeedbackCreateData) => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    alert(
-      `피드백 작성 완료: ${data.category} - ${data.content.slice(0, 30)}...`,
-    );
+    const result = await createFeedback(data);
     setIsLoading(false);
-    router.push(`/feedbacks?category=${category}`);
+
+    if (result.success) {
+      toast.success(result.message);
+      router.push(`/feedbacks?category=${category}`);
+    } else {
+      toast.error(result.message);
+    }
   };
 
   return (

@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
+import { updateFeedback, deleteFeedback } from '@/app/actions/feedback';
 import {
   feedbackUpdateSchema,
   type FeedbackUpdateData,
@@ -45,22 +47,30 @@ export function FeedbackEditForm({ feedback }: FeedbackEditFormProps) {
     defaultValues: { content: feedback.content },
   });
 
-  // 더미 수정 핸들러 (Task 013에서 실제 Server Action으로 교체 예정)
   const onSubmit = async (data: FeedbackUpdateData) => {
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    alert(`피드백 수정 완료: ${data.content.slice(0, 30)}...`);
+    const result = await updateFeedback(feedback.id, data);
     setIsLoading(false);
-    router.push('/feedbacks');
+
+    if (result.success) {
+      toast.success(result.message);
+      router.push('/feedbacks');
+    } else {
+      toast.error(result.message);
+    }
   };
 
-  // 더미 삭제 핸들러
   const handleDelete = async () => {
     setIsDeleting(true);
-    await new Promise((r) => setTimeout(r, 500));
-    alert('피드백이 삭제되었습니다');
+    const result = await deleteFeedback(feedback.id);
     setIsDeleting(false);
-    router.push('/feedbacks');
+
+    if (result.success) {
+      toast.success(result.message);
+      router.push('/feedbacks');
+    } else {
+      toast.error(result.message);
+    }
   };
 
   return (

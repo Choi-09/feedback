@@ -1,8 +1,9 @@
+import { redirect } from 'next/navigation';
+
+import { getFeedbackById } from '@/app/actions/feedback';
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { FeedbackEditForm } from '@/components/feedback/feedback-edit-form';
-import { mockFeedbacks } from '@/lib/data/mock-feedbacks';
-import type { FeedbackDetail } from '@/lib/types/feedback';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -11,23 +12,12 @@ type Props = {
 export default async function EditFeedbackPage({ params }: Props) {
   const { id } = await params;
 
-  // 더미 데이터에서 피드백 조회 (Task 013에서 실제 Server Action으로 교체 예정)
-  const mock = mockFeedbacks.find((f) => f.id === id);
-  const feedback: FeedbackDetail = mock
-    ? {
-        id: mock.id,
-        category: mock.category,
-        content: mock.content,
-        created_at: mock.created_at,
-        updated_at: mock.updated_at,
-      }
-    : {
-        id,
-        category: 'llm',
-        content: '더미 피드백 내용입니다.',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+  const feedback = await getFeedbackById(id);
+
+  // 본인 작성건이 아니거나 존재하지 않는 경우 목록으로 리다이렉트
+  if (!feedback) {
+    redirect('/feedbacks');
+  }
 
   return (
     <PageContainer>

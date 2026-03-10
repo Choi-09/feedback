@@ -2,12 +2,13 @@ import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { clientEnv } from '@/lib/env';
+import type { Database } from '@/lib/types/database';
 
 // 미들웨어용 Supabase 클라이언트 (request/response 쿠키 핸들링)
 export function createClient(request: NextRequest) {
   const response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     clientEnv.NEXT_PUBLIC_SUPABASE_URL,
     clientEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     {
