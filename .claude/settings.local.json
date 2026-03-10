@@ -1,12 +1,13 @@
 {
-    "permissions": {
-      "allow": [
-        "mcp__shrimp-task-manager",
-        "mcp__playwright",
-        "mcp__shadcn"
-      ]
-    },
-    "enableAllProjectMcpServers": true,
-    "outputStyle": "outline-style"
-  }
-  
+  "permissions": {
+    "allow": [
+      "mcp__shrimp-task-manager",
+      "mcp__playwright",
+      "mcp__shadcn",
+      "Skill(docs:update-roadmap)",
+      "mcp__context7__resolve-library-id"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "outputStyle": "outline-style"
+}
