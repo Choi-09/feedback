@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import {
   feedbackCreateSchema,
@@ -118,7 +119,9 @@ export async function getSubmissionStats() {
     .from('feedbacks')
     .select('author_id, category');
 
-  const { count: totalUsers } = await supabase
+  // RLS 우회: 일반 사용자는 users 테이블에서 본인만 조회 가능
+  const admin = createAdminClient();
+  const { count: totalUsers } = await admin
     .from('users')
     .select('*', { count: 'exact', head: true });
 
