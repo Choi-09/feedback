@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button-variants';
 import { FeedbackTabs } from '@/components/feedback/feedback-tabs';
 import { FeedbackGuideBanner } from '@/components/feedback/feedback-guide-banner';
 import { FeedbackSearchBar } from '@/components/feedback/feedback-search-bar';

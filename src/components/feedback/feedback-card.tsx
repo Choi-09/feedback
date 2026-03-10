@@ -6,7 +6,7 @@ import type {
   AdminFeedbackListItem,
 } from '@/lib/types/feedback';
 import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button-variants';
 
 type FeedbackCardProps = {
   feedback: FeedbackListItem | AdminFeedbackListItem;
