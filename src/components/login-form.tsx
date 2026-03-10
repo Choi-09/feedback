@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { Loader2 } from 'lucide-react';
 
+import { checkUserExists, signIn, signUp } from '@/app/actions/auth';
 import {
   loginSchema,
   passwordConfirmSchema,
@@ -20,55 +22,60 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 로그인 폼 (기존 사용자)
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { name: '', password: '' },
   });
 
-  // 비밀번호 확인 폼 (신규 사용자)
   const confirmForm = useForm<PasswordConfirmFormData>({
     resolver: zodResolver(passwordConfirmSchema),
     defaultValues: { name: '', password: '', passwordConfirm: '' },
   });
 
-  // 더미 로그인 핸들러 (Task 010에서 실제 Server Action으로 교체 예정)
   const handleLogin = async (data: LoginFormData) => {
     setError(null);
     setIsLoading(true);
 
-    // 더미: '신규사용자' 이름 입력 시 신규 사용자 플로우 시뮬레이션
-    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const exists = await checkUserExists(data.name);
 
-    if (data.name === '신규사용자') {
-      setIsNewUser(true);
-      confirmForm.setValue('name', data.name);
-      confirmForm.setValue('password', data.password);
+      if (exists) {
+        const result = await signIn(data);
+        // signIn 성공 시 redirect → 이 줄에 도달하지 않음
+        if (result && !result.success) {
+          setError(result.message);
+        }
+      } else {
+        setIsNewUser(true);
+        confirmForm.setValue('name', data.name);
+        confirmForm.setValue('password', data.password);
+      }
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError('오류가 발생했습니다. 다시 시도해주세요');
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // 더미: 비밀번호가 '1234'가 아니면 에러
-    if (data.password !== '1234') {
-      setError('비밀번호가 올바르지 않습니다');
-      setIsLoading(false);
-      return;
-    }
-
-    alert(`로그인 성공: ${data.name}`);
-    setIsLoading(false);
   };
 
-  // 더미 회원가입 핸들러
   const handleSignUp = async (data: PasswordConfirmFormData) => {
     setError(null);
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
-    alert(`자동가입 성공: ${data.name}`);
-    setIsLoading(false);
+
+    try {
+      const result = await signUp(data);
+      // signUp 성공 시 redirect → 이 줄에 도달하지 않음
+      if (result && !result.success) {
+        setError(result.message);
+      }
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError('오류가 발생했습니다. 다시 시도해주세요');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // 신규 사용자 → 기존 사용자 폼으로 돌아가기
   const handleBack = () => {
     setIsNewUser(false);
     setError(null);
