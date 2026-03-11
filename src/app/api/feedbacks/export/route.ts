@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createFeedbackWorkbook } from '@/lib/excel';
 import { categorySchema } from '@/lib/schemas/feedback';
+import { extractKeyword } from '@/lib/extract-keyword';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -55,9 +56,10 @@ export async function GET(request: NextRequest) {
     rows = data.map((row, i) => ({
       index: i + 1,
       category: row.category.toUpperCase(),
+      keyword: extractKeyword(row.content).label,
       content: row.content,
       author: row.users?.name ?? '알 수 없음',
-      created_at: new Date(row.created_at).toLocaleDateString('ko-KR'),
+      created_at: row.created_at.replace('T', ' ').slice(0, 16),
     }));
   } else {
     const { data, error } = await supabase
@@ -76,8 +78,9 @@ export async function GET(request: NextRequest) {
     rows = data.map((row, i) => ({
       index: i + 1,
       category: row.category.toUpperCase(),
+      keyword: extractKeyword(row.content).label,
       content: row.content,
-      created_at: new Date(row.created_at).toLocaleDateString('ko-KR'),
+      created_at: row.created_at.replace('T', ' ').slice(0, 16),
     }));
   }
 

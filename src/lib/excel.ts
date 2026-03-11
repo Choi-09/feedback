@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs';
 type FeedbackRow = {
   index: number;
   category: string;
+  keyword: string;
   content: string;
   author?: string;
   created_at: string;
@@ -20,6 +21,7 @@ export async function createFeedbackWorkbook(
   const columns: Partial<ExcelJS.Column>[] = [
     { header: '번호', key: 'index', width: 8 },
     { header: '카테고리', key: 'category', width: 12 },
+    { header: '키워드', key: 'keyword', width: 15 },
     { header: '내용', key: 'content', width: 60 },
   ];
 
