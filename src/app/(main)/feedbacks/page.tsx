@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
+import { getUser, getProfile } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { PageContainer } from '@/components/layout/page-container';
@@ -35,47 +36,104 @@ export default async function FeedbacksPage({ searchParams }: Props) {
     : 'llm';
   const search = params.search || '';
 
-  // 1회의 getUser() + 병렬 DB 쿼리로 모든 데이터 조회
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  // React cache()로 중복 호출 방지 (AppHeader와 공유)
+  const user = await getUser();
   if (!user) return null;
 
-  const admin = createAdminClient();
-
-  // 프로필, 피드백 목록, 통계를 병렬로 조회
-  const [profileResult, feedbacksResult, allFeedbacksResult, allUsersResult] =
-    await Promise.all([
-      supabase
-        .from('users')
-        .select('id, name, is_admin')
-        .eq('auth_id', user.id)
-        .single(),
-      (() => {
-        let q = supabase
-          .from('feedbacks')
-          .select(
-            'id, category, content, author_id, created_at, updated_at, keyword_emoji, keyword_label, users(name)',
-          )
-          .eq('category', category)
-          .order('created_at', { ascending: false });
-        if (search.trim()) q = q.ilike('content', `%${search.trim()}%`);
-        return q;
-      })(),
-      admin.from('feedbacks').select('author_id, category'),
-      admin.from('users').select('id, name'),
-    ]);
-
-  const profile = profileResult.data;
+  const profile = await getProfile();
   const isAdmin = profile?.is_admin ?? false;
   const userId = profile?.id ?? null;
 
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // 관리자/비관리자 분기: 비관리자는 users count만 조회
+  const feedbacksQuery = (() => {
+    let q = supabase
+      .from('feedbacks')
+      .select(
+        'id, category, content, author_id, created_at, updated_at, keyword_emoji, keyword_label, users(name)',
+      )
+      .eq('category', category)
+      .order('created_at', { ascending: false });
+    if (search.trim()) q = q.ilike('content', `%${search.trim()}%`);
+    return q;
+  })();
+
+  const allFeedbacksQuery = admin
+    .from('feedbacks')
+    .select('author_id, category');
+
+  if (isAdmin) {
+    // 관리자: 이름 목록 필요 (미제출자 표시)
+    const [feedbacksResult, allFeedbacksResult, allUsersResult] =
+      await Promise.all([
+        feedbacksQuery,
+        allFeedbacksQuery,
+        admin.from('users').select('id, name'),
+      ]);
+
+    return renderPage({
+      feedbacksData: feedbacksResult.data ?? [],
+      allFeedbacks: allFeedbacksResult.data ?? [],
+      allUsers: allUsersResult.data ?? [],
+      totalUsers: (allUsersResult.data ?? []).length,
+      isAdmin,
+      userId,
+      category,
+    });
+  }
+
+  // 비관리자: count만 조회 (head: true)
+  const [feedbacksResult, allFeedbacksResult, usersCountResult] =
+    await Promise.all([
+      feedbacksQuery,
+      allFeedbacksQuery,
+      admin.from('users').select('*', { count: 'exact', head: true }),
+    ]);
+
+  return renderPage({
+    feedbacksData: feedbacksResult.data ?? [],
+    allFeedbacks: allFeedbacksResult.data ?? [],
+    allUsers: [],
+    totalUsers: usersCountResult.count ?? 0,
+    isAdmin,
+    userId,
+    category,
+  });
+}
+
+// 페이지 렌더링 함수 (관리자/비관리자 공통)
+function renderPage({
+  feedbacksData,
+  allFeedbacks,
+  allUsers,
+  totalUsers,
+  isAdmin,
+  userId,
+  category,
+}: {
+  feedbacksData: Array<{
+    id: string;
+    category: string;
+    content: string;
+    author_id: string;
+    created_at: string;
+    updated_at: string;
+    keyword_emoji: string | null;
+    keyword_label: string | null;
+    users: { name: string } | null;
+  }>;
+  allFeedbacks: Array<{ author_id: string; category: string }>;
+  allUsers: Array<{ id: string; name: string }>;
+  totalUsers: number;
+  isAdmin: boolean;
+  userId: string | null;
+  category: FeedbackCategory;
+}) {
   // 피드백 목록 매핑
-  const rawFeedbacks = feedbacksResult.data ?? [];
   const feedbacks: (FeedbackListItem | AdminFeedbackListItem)[] =
-    rawFeedbacks.map((row) => {
+    feedbacksData.map((row) => {
       const base: FeedbackListItem = {
         id: row.id,
         category: row.category as FeedbackCategory,
@@ -96,9 +154,6 @@ export default async function FeedbacksPage({ searchParams }: Props) {
     });
 
   // 통계 계산
-  const allFeedbacks = allFeedbacksResult.data ?? [];
-  const allUsers = allUsersResult.data ?? [];
-  const totalUsers = allUsers.length;
   const llmFeedbacks = allFeedbacks.filter((f) => f.category === 'llm');
   const erpFeedbacks = allFeedbacks.filter((f) => f.category === 'erp');
 

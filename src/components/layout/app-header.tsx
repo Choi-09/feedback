@@ -1,21 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+import { getProfile } from '@/lib/auth';
 import { UserMenu } from '@/components/layout/user-menu';
 
 export async function AppHeader() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from('users')
-    .select('name, is_admin')
-    .eq('auth_id', user.id)
-    .single();
-
-  const userName = profile?.name ?? '사용자';
+  const profile = await getProfile();
+  if (!profile) return null;
 
   return (
     <header className="border-b bg-background">
@@ -27,7 +15,7 @@ export async function AppHeader() {
           </p>
         </div>
 
-        <UserMenu userName={userName} />
+        <UserMenu userName={profile.name} />
       </div>
     </header>
   );
