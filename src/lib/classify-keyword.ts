@@ -1,6 +1,4 @@
 // Gemini API 기반 피드백 키워드 분류 (정규화 + 정규식 폴백)
-import { GoogleGenAI } from '@google/genai';
-
 import { extractKeyword } from '@/lib/extract-keyword';
 
 type Keyword = { emoji: string; label: string };
@@ -63,6 +61,7 @@ async function tryGemini(
   apiKey: string,
   content: string,
 ): Promise<Keyword | null> {
+  const { GoogleGenAI } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
     model: 'gemini-2.0-flash',

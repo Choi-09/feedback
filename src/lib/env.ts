@@ -28,8 +28,12 @@ if (!clientResult.success) {
   throw new Error('클라이언트 환경변수가 올바르지 않습니다.');
 }
 
-// 서버 환경변수 검증 (서버 환경에서만 실행)
+// 서버 환경변수 검증 (서버 환경에서만 실행, 모듈 레벨 캐시)
+let _serverEnv: z.infer<typeof serverEnvSchema> | null = null;
+
 function getServerEnv() {
+  if (_serverEnv) return _serverEnv;
+
   if (typeof window !== 'undefined') {
     throw new Error('서버 환경변수는 서버에서만 접근할 수 있습니다.');
   }
@@ -45,7 +49,8 @@ function getServerEnv() {
     throw new Error('서버 환경변수가 올바르지 않습니다.');
   }
 
-  return result.data;
+  _serverEnv = result.data;
+  return _serverEnv;
 }
 
 export const clientEnv = clientResult.data;
