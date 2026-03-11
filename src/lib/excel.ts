@@ -41,10 +41,8 @@ export async function createFeedbackWorkbook(
     fgColor: { argb: 'F2F2F2' },
   };
 
-  // 데이터 추가 (열 key 기반으로 매핑되므로 그대로 전달)
-  for (const row of rows) {
-    sheet.addRow(row);
-  }
+  // 데이터 일괄 추가
+  sheet.addRows(rows);
 
   return workbook;
 }
