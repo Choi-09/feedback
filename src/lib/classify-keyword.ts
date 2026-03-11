@@ -29,7 +29,7 @@ const NORMALIZE_MAP: Record<string, Keyword> = {
   '스크롤 UX': { emoji: '🎯', label: 'UX 개선' },
   '답변 시인성': { emoji: '🎯', label: 'UX 개선' },
   '화면 개선': { emoji: '🎯', label: 'UX 개선' },
-  '레이아웃': { emoji: '🎯', label: 'UX 개선' },
+  레이아웃: { emoji: '🎯', label: 'UX 개선' },
   '급여 관리': { emoji: '💰', label: '급여/경비' },
   '급여/급여': { emoji: '💰', label: '급여/경비' },
   '검색/정렬': { emoji: '🔍', label: '검색 개선' },
@@ -37,7 +37,7 @@ const NORMALIZE_MAP: Record<string, Keyword> = {
   'XLSX 지원': { emoji: '📂', label: '파일 지원' },
   '페이지 제한': { emoji: '📂', label: '파일 지원' },
   '문서 양식': { emoji: '📂', label: '파일 지원' },
-  '멀티모달': { emoji: '📂', label: '파일 지원' },
+  멀티모달: { emoji: '📂', label: '파일 지원' },
 };
 
 // 정규화 적용
@@ -81,10 +81,9 @@ async function tryGemini(
 
 // Gemini API로 키워드 분류 (KEY1 → KEY2 → 정규식 순서로 폴백)
 export async function classifyKeyword(content: string): Promise<Keyword> {
-  const keys = [
-    process.env.GEMINI_API_KEY,
-    process.env.GEMINI_API_KEY2,
-  ].filter(Boolean) as string[];
+  const keys = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY2].filter(
+    Boolean,
+  ) as string[];
 
   for (const key of keys) {
     try {
