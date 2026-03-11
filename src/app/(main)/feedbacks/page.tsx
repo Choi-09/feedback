@@ -20,6 +20,7 @@ import type {
   FeedbackListItem,
   AdminFeedbackListItem,
 } from '@/lib/types/feedback';
+import { categorySchema } from '@/lib/schemas/feedback';
 import type { FeedbackCategory } from '@/lib/types/common';
 
 type Props = {
@@ -28,7 +29,10 @@ type Props = {
 
 export default async function FeedbacksPage({ searchParams }: Props) {
   const params = await searchParams;
-  const category = (params.category as FeedbackCategory) || 'llm';
+  const categoryResult = categorySchema.safeParse(params.category);
+  const category: FeedbackCategory = categoryResult.success
+    ? categoryResult.data
+    : 'llm';
   const search = params.search || '';
 
   // 1회의 getUser() + 병렬 DB 쿼리로 모든 데이터 조회

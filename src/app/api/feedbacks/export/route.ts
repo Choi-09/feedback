@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createClient } from '@/lib/supabase/server';
 import { createFeedbackWorkbook } from '@/lib/excel';
-import type { FeedbackCategory } from '@/lib/types/common';
+import { categorySchema } from '@/lib/schemas/feedback';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -28,9 +28,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // 카테고리 파라미터
-  const category =
-    (request.nextUrl.searchParams.get('category') as FeedbackCategory) || 'llm';
+  // 카테고리 파라미터 검증
+  const categoryResult = categorySchema.safeParse(
+    request.nextUrl.searchParams.get('category'),
+  );
+  const category = categoryResult.success ? categoryResult.data : 'llm';
 
   // 피드백 조회 (관리자: users JOIN, 일반: 기본)
   const isAdmin = profile.is_admin;

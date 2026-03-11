@@ -37,7 +37,7 @@ export function FeedbackSearchBar() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [value, searchParams, router]);
 
   return (
     <div className="relative">

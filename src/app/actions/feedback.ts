@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import {
   feedbackCreateSchema,
@@ -12,11 +11,7 @@ import type {
   FeedbackCreateData,
   FeedbackUpdateData,
 } from '@/lib/schemas/feedback';
-import type {
-  FeedbackListItem,
-  AdminFeedbackListItem,
-  FeedbackDetail,
-} from '@/lib/types/feedback';
+import type { FeedbackDetail } from '@/lib/types/feedback';
 import type { FeedbackCategory, ActionResult } from '@/lib/types/common';
 
 // 현재 로그인 사용자의 users 테이블 정보 조회
@@ -35,122 +30,6 @@ async function getCurrentUser() {
     .single();
 
   return profile;
-}
-
-// 카테고리별 피드백 목록 조회
-// - 일반 사용자: FeedbackListItem[] (is_mine 플래그, author_id 미포함)
-// - 관리자: AdminFeedbackListItem[] (author_name 포함)
-export async function getFeedbacks(
-  category: FeedbackCategory,
-  searchQuery?: string,
-): Promise<FeedbackListItem[] | AdminFeedbackListItem[]> {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) return [];
-
-  const supabase = await createClient();
-
-  // 관리자: users JOIN으로 author_name 포함 (단일 쿼리)
-  if (currentUser.is_admin) {
-    let adminQuery = supabase
-      .from('feedbacks')
-      .select(
-        'id, category, content, author_id, created_at, updated_at, users(name)',
-      )
-      .eq('category', category)
-      .order('created_at', { ascending: false });
-
-    if (searchQuery && searchQuery.trim()) {
-      adminQuery = adminQuery.ilike('content', `%${searchQuery.trim()}%`);
-    }
-
-    const { data, error } = await adminQuery;
-    if (error || !data) return [];
-
-    return data.map((row) => ({
-      id: row.id,
-      category: row.category as FeedbackCategory,
-      content: row.content,
-      created_at: row.created_at,
-      updated_at: row.updated_at,
-      is_mine: row.author_id === currentUser.id,
-      author_name: row.users?.name ?? '알 수 없음',
-    }));
-  }
-
-  // 일반 사용자: author_id로 is_mine만 계산, 클라이언트에 author_id 미반환
-  let query = supabase
-    .from('feedbacks')
-    .select('id, category, content, author_id, created_at, updated_at')
-    .eq('category', category)
-    .order('created_at', { ascending: false });
-
-  if (searchQuery && searchQuery.trim()) {
-    query = query.ilike('content', `%${searchQuery.trim()}%`);
-  }
-
-  const { data, error } = await query;
-  if (error || !data) return [];
-
-  return data.map((row) => ({
-    id: row.id,
-    category: row.category as FeedbackCategory,
-    content: row.content,
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-    is_mine: row.author_id === currentUser.id,
-  }));
-}
-
-// 제출 현황 통계 (개인 작성 수 + 카테고리별 제출 인원)
-// Server Component에서 호출되므로 admin 클라이언트만 사용 (쿠키 쓰기 불가)
-export async function getSubmissionStats(currentUserId: string | null) {
-  const defaultStats = {
-    myStats: { llm: 0, erp: 0 },
-    overallStats: { llm: 0, erp: 0 },
-    feedbackCounts: { llm: 0, erp: 0, total: 0 },
-    totalUsers: 22,
-  };
-
-  const admin = createAdminClient();
-
-  const { data: feedbacks } = await admin
-    .from('feedbacks')
-    .select('author_id, category');
-
-  const { count: totalUsers } = await admin
-    .from('users')
-    .select('*', { count: 'exact', head: true });
-
-  if (!feedbacks) return { ...defaultStats, totalUsers: totalUsers ?? 22 };
-
-  // 내 작성 수
-  const myLlm = currentUserId
-    ? feedbacks.filter(
-        (f) => f.author_id === currentUserId && f.category === 'llm',
-      ).length
-    : 0;
-  const myErp = currentUserId
-    ? feedbacks.filter(
-        (f) => f.author_id === currentUserId && f.category === 'erp',
-      ).length
-    : 0;
-
-  // 카테고리별 고유 작성자 수
-  const llmFeedbacks = feedbacks.filter((f) => f.category === 'llm');
-  const erpFeedbacks = feedbacks.filter((f) => f.category === 'erp');
-  const llmAuthors = new Set(llmFeedbacks.map((f) => f.author_id)).size;
-  const erpAuthors = new Set(erpFeedbacks.map((f) => f.author_id)).size;
-
-  return {
-    myStats: { llm: myLlm, erp: myErp },
-    overallStats: { llm: llmAuthors, erp: erpAuthors },
-    feedbackCounts: {
-      llm: llmFeedbacks.length,
-      erp: erpFeedbacks.length,
-      total: feedbacks.length,
-    },
-    totalUsers: totalUsers ?? 22,
-  };
 }
 
 // 단건 조회 (수정 페이지용, 본인 작성건만)
@@ -235,21 +114,16 @@ export async function updateFeedback(
 
   const supabase = await createClient();
 
-  // 서버 레이어 이중 검증: 본인 작성건 확인
-  const { data: existing } = await supabase
-    .from('feedbacks')
-    .select('author_id')
-    .eq('id', id)
-    .single();
-
-  if (!existing || existing.author_id !== currentUser.id) {
-    return { success: false, message: '수정 권한이 없습니다' };
-  }
-
-  const { error } = await supabase
+  // 단일 쿼리로 본인 작성건만 수정 (TOCTOU 방지)
+  const { error, count } = await supabase
     .from('feedbacks')
     .update({ content: parsed.data.content })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('author_id', currentUser.id);
+
+  if (count === 0) {
+    return { success: false, message: '수정 권한이 없습니다' };
+  }
 
   if (error) {
     return { success: false, message: '피드백 수정에 실패했습니다' };
@@ -268,18 +142,16 @@ export async function deleteFeedback(id: string): Promise<ActionResult> {
 
   const supabase = await createClient();
 
-  // 서버 레이어 이중 검증: 본인 작성건 확인
-  const { data: existing } = await supabase
+  // 단일 쿼리로 본인 작성건만 삭제 (TOCTOU 방지)
+  const { error, count } = await supabase
     .from('feedbacks')
-    .select('author_id')
+    .delete()
     .eq('id', id)
-    .single();
+    .eq('author_id', currentUser.id);
 
-  if (!existing || existing.author_id !== currentUser.id) {
+  if (count === 0) {
     return { success: false, message: '삭제 권한이 없습니다' };
   }
-
-  const { error } = await supabase.from('feedbacks').delete().eq('id', id);
 
   if (error) {
     return { success: false, message: '피드백 삭제에 실패했습니다' };
