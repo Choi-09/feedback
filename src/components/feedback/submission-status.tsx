@@ -1,16 +1,16 @@
-import { getSubmissionStats } from '@/app/actions/feedback';
 import type { FeedbackCategory } from '@/lib/types/common';
 
 interface SubmissionStatusProps {
   category: FeedbackCategory;
-  userId: string | null;
+  stats: {
+    myStats: { llm: number; erp: number };
+    overallStats: { llm: number; erp: number };
+    feedbackCounts: { llm: number; erp: number; total: number };
+    totalUsers: number;
+  };
 }
 
-export async function SubmissionStatus({
-  category,
-  userId,
-}: SubmissionStatusProps) {
-  const stats = await getSubmissionStats(userId);
+export function SubmissionStatus({ category, stats }: SubmissionStatusProps) {
   const currentTabSubmitted =
     category === 'llm' ? stats.overallStats.llm : stats.overallStats.erp;
 
