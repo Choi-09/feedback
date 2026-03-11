@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { Loader2 } from 'lucide-react';
 
-import { checkUserExists, signIn, signUp } from '@/app/actions/auth';
+import { login, signUp } from '@/app/actions/auth';
 import {
   loginSchema,
   passwordConfirmSchema,
@@ -37,15 +37,13 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const exists = await checkUserExists(data.name);
+      const result = await login(data);
+      // 기존 사용자 로그인 성공 시 redirect → 이 줄에 도달하지 않음
 
-      if (exists) {
-        const result = await signIn(data);
-        // signIn 성공 시 redirect → 이 줄에 도달하지 않음
-        if (result && !result.success) {
-          setError(result.message);
-        }
-      } else {
+      if (!result.success) {
+        setError(result.message);
+      } else if (result.data?.isNewUser) {
+        // 신규 사용자 → 비밀번호 확인 UI 표시
         setIsNewUser(true);
         confirmForm.setValue('name', data.name);
         confirmForm.setValue('password', data.password);

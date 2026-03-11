@@ -8,27 +8,29 @@ import { createClient } from '@/lib/supabase/server';
 import {
   passwordChangeSchema,
   type LoginFormData,
-  type PasswordChangeFormData,
   type PasswordConfirmFormData,
+  type PasswordChangeFormData,
 } from '@/lib/schemas/auth';
 import type { ActionResult } from '@/lib/types/common';
 
-// 이름으로 사용자 존재 여부 확인 (service_role)
-export async function checkUserExists(name: string): Promise<boolean> {
+// 로그인 통합: 존재 확인 + signIn을 서버 내에서 원자적으로 처리
+export async function login(
+  formData: LoginFormData,
+): Promise<ActionResult<{ isNewUser: boolean }>> {
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data: existingUser } = await admin
     .from('users')
     .select('id')
-    .eq('name', name)
+    .eq('name', formData.name)
     .maybeSingle();
 
-  return !!data;
-}
+  // 신규 사용자 → 클라이언트에서 비밀번호 확인 UI 표시
+  if (!existingUser) {
+    return { success: true, message: '', data: { isNewUser: true } };
+  }
 
-// 로그인 (이름 + 비밀번호)
-export async function signIn(formData: LoginFormData): Promise<ActionResult> {
+  // 기존 사용자 → 즉시 로그인 시도
   const supabase = await createClient();
-
   const { error } = await supabase.auth.signInWithPassword({
     email: toEmail(formData.name),
     password: formData.password,
