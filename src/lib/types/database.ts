@@ -21,6 +21,8 @@ export type Database = {
           content: string;
           created_at: string;
           id: string;
+          keyword_emoji: string | null;
+          keyword_label: string | null;
           updated_at: string;
         };
         Insert: {
@@ -29,6 +31,8 @@ export type Database = {
           content: string;
           created_at?: string;
           id?: string;
+          keyword_emoji?: string | null;
+          keyword_label?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -37,6 +41,8 @@ export type Database = {
           content?: string;
           created_at?: string;
           id?: string;
+          keyword_emoji?: string | null;
+          keyword_label?: string | null;
           updated_at?: string;
         };
         Relationships: [

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createFeedbackWorkbook } from '@/lib/excel';
 import { categorySchema } from '@/lib/schemas/feedback';
-import { extractKeyword } from '@/lib/extract-keyword';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest) {
   if (isAdmin) {
     const { data, error } = await supabase
       .from('feedbacks')
-      .select('id, category, content, created_at, users(name)')
+      .select('id, category, content, created_at, keyword_label, users(name)')
       .eq('category', category)
       .order('created_at', { ascending: false });
 
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
     rows = data.map((row, i) => ({
       index: i + 1,
       category: row.category.toUpperCase(),
-      keyword: extractKeyword(row.content).label,
+      keyword: row.keyword_label ?? '피드백',
       content: row.content,
       author: row.users?.name ?? '알 수 없음',
       created_at: row.created_at.replace('T', ' ').slice(0, 16),
@@ -64,7 +63,7 @@ export async function GET(request: NextRequest) {
   } else {
     const { data, error } = await supabase
       .from('feedbacks')
-      .select('id, category, content, created_at')
+      .select('id, category, content, created_at, keyword_label')
       .eq('category', category)
       .order('created_at', { ascending: false });
 
@@ -78,7 +77,7 @@ export async function GET(request: NextRequest) {
     rows = data.map((row, i) => ({
       index: i + 1,
       category: row.category.toUpperCase(),
-      keyword: extractKeyword(row.content).label,
+      keyword: row.keyword_label ?? '피드백',
       content: row.content,
       created_at: row.created_at.replace('T', ' ').slice(0, 16),
     }));

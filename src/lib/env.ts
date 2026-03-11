@@ -9,6 +9,8 @@ const clientEnvSchema = z.object({
 // 서버 환경변수 (서버에서만 접근 가능)
 const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  GEMINI_API_KEY: z.string().min(1).optional(),
+  GEMINI_API_KEY2: z.string().min(1).optional(),
 });
 
 // 클라이언트 환경변수 검증
@@ -34,6 +36,8 @@ function getServerEnv() {
 
   const result = serverEnvSchema.safeParse({
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    GEMINI_API_KEY2: process.env.GEMINI_API_KEY2,
   });
 
   if (!result.success) {

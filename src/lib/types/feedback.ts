@@ -18,6 +18,8 @@ export type FeedbackListItem = {
   created_at: string;
   updated_at: string;
   is_mine: boolean;
+  keyword_emoji: string | null;
+  keyword_label: string | null;
 };
 
 // 관리자 목록 응답 (작성자 이름 포함)

@@ -13,6 +13,7 @@ import type {
 } from '@/lib/schemas/feedback';
 import type { FeedbackDetail } from '@/lib/types/feedback';
 import type { FeedbackCategory, ActionResult } from '@/lib/types/common';
+import { classifyKeyword } from '@/lib/classify-keyword';
 
 // 현재 로그인 사용자의 users 테이블 정보 조회
 async function getCurrentUser() {
@@ -78,11 +79,16 @@ export async function createFeedback(
     return { success: false, message: '로그인이 필요합니다' };
   }
 
+  // Gemini API로 키워드 분류 (실패 시 정규식 폴백)
+  const keyword = await classifyKeyword(parsed.data.content);
+
   const supabase = await createClient();
   const { error } = await supabase.from('feedbacks').insert({
     category: parsed.data.category,
     content: parsed.data.content,
     author_id: currentUser.id,
+    keyword_emoji: keyword.emoji,
+    keyword_label: keyword.label,
   });
 
   if (error) {
@@ -114,10 +120,17 @@ export async function updateFeedback(
 
   const supabase = await createClient();
 
+  // 수정 시에도 키워드 재분류
+  const keyword = await classifyKeyword(parsed.data.content);
+
   // 단일 쿼리로 본인 작성건만 수정 (TOCTOU 방지)
   const { error, count } = await supabase
     .from('feedbacks')
-    .update({ content: parsed.data.content })
+    .update({
+      content: parsed.data.content,
+      keyword_emoji: keyword.emoji,
+      keyword_label: keyword.label,
+    })
     .eq('id', id)
     .eq('author_id', currentUser.id);
 

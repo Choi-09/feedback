@@ -57,7 +57,7 @@ export default async function FeedbacksPage({ searchParams }: Props) {
         let q = supabase
           .from('feedbacks')
           .select(
-            'id, category, content, author_id, created_at, updated_at, users(name)',
+            'id, category, content, author_id, created_at, updated_at, keyword_emoji, keyword_label, users(name)',
           )
           .eq('category', category)
           .order('created_at', { ascending: false });
@@ -83,6 +83,8 @@ export default async function FeedbacksPage({ searchParams }: Props) {
         created_at: row.created_at,
         updated_at: row.updated_at,
         is_mine: row.author_id === userId,
+        keyword_emoji: row.keyword_emoji,
+        keyword_label: row.keyword_label,
       };
       if (isAdmin) {
         return {

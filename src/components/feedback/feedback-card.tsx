@@ -5,7 +5,6 @@ import type {
   FeedbackListItem,
   AdminFeedbackListItem,
 } from '@/lib/types/feedback';
-import { extractKeyword } from '@/lib/extract-keyword';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button-variants';
 
@@ -22,7 +21,10 @@ function isAdminItem(
 }
 
 export function FeedbackCard({ feedback, isAdmin, index }: FeedbackCardProps) {
-  const keyword = extractKeyword(feedback.content);
+  const keyword = {
+    emoji: feedback.keyword_emoji ?? '💬',
+    label: feedback.keyword_label ?? '피드백',
+  };
   // DB에 KST 기준으로 저장되어 있으므로 문자열에서 직접 추출
   const date = feedback.created_at.replace('T', ' ').slice(0, 16);
 
