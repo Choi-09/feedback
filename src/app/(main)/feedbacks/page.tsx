@@ -46,7 +46,7 @@ export default async function FeedbacksPage({ searchParams }: Props) {
   const admin = createAdminClient();
 
   // 프로필, 피드백 목록, 통계를 병렬로 조회
-  const [profileResult, feedbacksResult, allFeedbacksResult, usersCountResult] =
+  const [profileResult, feedbacksResult, allFeedbacksResult, allUsersResult] =
     await Promise.all([
       supabase
         .from('users')
@@ -65,7 +65,7 @@ export default async function FeedbacksPage({ searchParams }: Props) {
         return q;
       })(),
       admin.from('feedbacks').select('author_id, category'),
-      admin.from('users').select('*', { count: 'exact', head: true }),
+      admin.from('users').select('id, name'),
     ]);
 
   const profile = profileResult.data;
@@ -97,9 +97,17 @@ export default async function FeedbacksPage({ searchParams }: Props) {
 
   // 통계 계산
   const allFeedbacks = allFeedbacksResult.data ?? [];
-  const totalUsers = usersCountResult.count ?? 22;
+  const allUsers = allUsersResult.data ?? [];
+  const totalUsers = allUsers.length;
   const llmFeedbacks = allFeedbacks.filter((f) => f.category === 'llm');
   const erpFeedbacks = allFeedbacks.filter((f) => f.category === 'erp');
+
+  // 카테고리별 미제출자 계산 (관리자용)
+  const currentFeedbacks = category === 'llm' ? llmFeedbacks : erpFeedbacks;
+  const submittedIds = new Set(currentFeedbacks.map((f) => f.author_id));
+  const nonSubmitters = isAdmin
+    ? allUsers.filter((u) => !submittedIds.has(u.id)).map((u) => u.name)
+    : undefined;
   const stats = {
     myStats: {
       llm: userId
@@ -147,7 +155,12 @@ export default async function FeedbacksPage({ searchParams }: Props) {
             <FeedbackTabs />
           </Suspense>
 
-          <SubmissionStatus category={category} stats={stats} />
+          <SubmissionStatus
+            category={category}
+            stats={stats}
+            nonSubmitters={nonSubmitters}
+            isAdmin={isAdmin}
+          />
 
           <FeedbackGuideBanner category={category} />
 

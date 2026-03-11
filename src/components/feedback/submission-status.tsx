@@ -1,4 +1,5 @@
 import type { FeedbackCategory } from '@/lib/types/common';
+import { NonSubmittersBadge } from '@/components/feedback/non-submitters-badge';
 
 interface SubmissionStatusProps {
   category: FeedbackCategory;
@@ -8,16 +9,23 @@ interface SubmissionStatusProps {
     feedbackCounts: { llm: number; erp: number; total: number };
     totalUsers: number;
   };
+  nonSubmitters?: string[];
+  isAdmin?: boolean;
 }
 
-export function SubmissionStatus({ category, stats }: SubmissionStatusProps) {
+export function SubmissionStatus({
+  category,
+  stats,
+  nonSubmitters,
+  isAdmin,
+}: SubmissionStatusProps) {
   const currentTabSubmitted =
     category === 'llm' ? stats.overallStats.llm : stats.overallStats.erp;
 
   return (
     <div className="space-y-2">
       {/* 피드백 건수 */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs">
           <span className="size-1.5 rounded-full bg-blue-500" />
           LLM 피드백
@@ -39,6 +47,9 @@ export function SubmissionStatus({ category, stats }: SubmissionStatusProps) {
             {stats.feedbackCounts.total}
           </strong>
         </span>
+        {isAdmin && nonSubmitters && (
+          <NonSubmittersBadge names={nonSubmitters} category={category} />
+        )}
       </div>
 
       {/* 제출 현황 */}
